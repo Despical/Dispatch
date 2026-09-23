@@ -632,7 +632,7 @@ describe('mail interactions with the real mail template', () => {
     expect(element('[data-draft-id="saved-draft"]').classList.contains('removing')).toBe(true);
     await vi.advanceTimersByTimeAsync(190);
     expect(element('[data-draft-count]').textContent).toBe('');
-    expect(element('[data-trash-count]').textContent).toBe('2');
+    expect(element('[data-trash-count]').textContent).toBe('');
     expect(element('[data-message-toast-label]').textContent).toBe('Moved to Trash');
     expect(element('[data-undo-trash]').classList.contains('hidden')).toBe(false);
     element<HTMLButtonElement>('[data-undo-trash]').click(); await settle();
@@ -640,6 +640,7 @@ describe('mail interactions with the real mail template', () => {
     expect(element('[data-draft-count]').textContent).toBe('1');
     element<HTMLButtonElement>('[aria-label="Move draft to Trash"]').click(); await vi.advanceTimersByTimeAsync(190);
     element<HTMLButtonElement>('[data-trash]').click(); await settle();
+    expect(element('[data-trash-count]').textContent).toBe('2');
     expect(document.querySelector('[data-message-id="101"]')).not.toBeNull();
     expect(document.querySelector('[data-draft-id="saved-draft"]')).not.toBeNull();
     element<HTMLButtonElement>('[data-filter="drafts"]').click(); await settle();
