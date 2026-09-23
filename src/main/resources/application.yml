@@ -70,6 +70,7 @@ dispatch:
     jwt-signing-key-base64: ${JWT_SIGNING_KEY_BASE64}
     data-encryption-key-base64: ${DATA_ENCRYPTION_KEY_BASE64}
     bootstrap-token: ${BOOTSTRAP_TOKEN}
+    bootstrap-trusted-address: ${BOOTSTRAP_TRUSTED_ADDRESS:}
     prometheus-scrape-token: ${PROMETHEUS_SCRAPE_TOKEN}
     cookie-secure: ${COOKIE_SECURE:false}
     cookie-same-site: ${COOKIE_SAME_SITE:Lax}

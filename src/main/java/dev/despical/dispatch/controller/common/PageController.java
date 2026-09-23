@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -54,6 +55,9 @@ public class PageController {
 
     private final AuthService authService;
     private final DispatchProperties properties;
+
+    @Value("${dispatch.security.bootstrap-trusted-address:}")
+    private String bootstrapTrustedAddress;
 
     @GetMapping("/")
     String root() {
@@ -142,7 +146,8 @@ public class PageController {
         if (principal != null) return "redirect:/mail";
         if (!authService.bootstrapAvailable()) return "redirect:/login";
 
-        if (!isLoopback(request.getRemoteAddr())) {
+        if (!isLoopback(request.getRemoteAddr()) &&
+            !request.getRemoteAddr().equals(bootstrapTrustedAddress)) {
             throw new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "Bootstrap setup is available only from the server itself. Use an SSH tunnel"

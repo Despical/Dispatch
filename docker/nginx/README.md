@@ -30,3 +30,11 @@ When deploying:
    `/etc/letsencrypt/renewal-hooks/deploy/` so Nginx reloads renewed certificates.
 
 The mail hostname remains DNS only in Cloudflare because it is the MX target.
+
+For an empty database, set `BOOTSTRAP_TRUSTED_ADDRESS` in the private `.env` to
+the gateway reported by `docker network inspect dispatch_default --format
+'{{(index .IPAM.Config 0).Gateway}}'`, then recreate the app. Forward the
+loopback host port with `ssh -L 8082:127.0.0.1:8082 root@45.141.150.252` and
+open `http://localhost:8082/bootstrap` to create the first administrator.
+The public Nginx route blocks bootstrap setup. Remove the trusted address from
+`.env` after the first administrator is created and recreate the app.

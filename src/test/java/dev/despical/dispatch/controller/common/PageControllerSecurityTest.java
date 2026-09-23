@@ -43,6 +43,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -57,6 +58,7 @@ import java.util.UUID;
 @WebMvcTest(PageController.class)
 @Import({SecurityConfig.class, AccessTokenFilter.class, PrometheusTokenFilter.class})
 @ActiveProfiles("test")
+@TestPropertySource(properties = "dispatch.security.bootstrap-trusted-address=172.27.0.1")
 class PageControllerSecurityTest {
 
     @Autowired
@@ -172,6 +174,10 @@ class PageControllerSecurityTest {
                             return request;
                         }))
             .andExpect(status().isForbidden());
+        mvc.perform(get("/bootstrap").with(request -> {
+            request.setRemoteAddr("172.27.0.1");
+            return request;
+        })).andExpect(status().isOk());
     }
 
     @Test
