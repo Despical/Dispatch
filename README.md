@@ -86,8 +86,11 @@ The single V1 migration creates the current schema for a new database.
 
 ### Docker deployment
 
-Copy `.env.example` to `.env`, set unique production secrets and mail provider
-credentials, then start the stack with `docker compose up -d --build`. The app
+Copy `.env.example` to `.env` and set unique production secrets and mail provider
+credentials. Create `secrets/prometheus_token` containing exactly the value of
+`PROMETHEUS_SCRAPE_TOKEN`, and copy `docker/alertmanager.yml.example` to
+`secrets/alertmanager.yml` with working SMTP settings. Keep `.env` and `secrets/`
+private. Then start the stack with `docker compose up -d --build`. The app
 binds to `127.0.0.1:8082` by default; set `APP_BIND_HOST` and `APP_HOST_PORT`
 only when another local port is needed. For the shared Despical VPS, use
 `docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d --build`
