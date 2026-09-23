@@ -74,7 +74,9 @@ public class MailConnectionFactory {
         mail.put("mail.imaps.fetchsize", "1048576");
         if ("GOOGLE".equals(account.getAuthProvider()))
             mail.put("mail.imaps.auth.mechanisms", "XOAUTH2");
-        Store store = Session.getInstance(mail).getStore("imaps");
+        Session session = Session.getInstance(mail);
+        Store store = "GOOGLE".equals(account.getAuthProvider())
+            ? new GmailImapStore(session) : session.getStore("imaps");
         store.connect(account.getImapHost(), account.getImapPort(), account.getUsername(),
             credential(account));
         return store;

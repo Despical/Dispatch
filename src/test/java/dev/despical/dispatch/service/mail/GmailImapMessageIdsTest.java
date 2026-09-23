@@ -20,6 +20,11 @@ package dev.despical.dispatch.service.mail;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assumptions;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
+import org.eclipse.angus.mail.imap.IMAPFolder;
+import java.util.Properties;
 
 /**
  * @author Despical
@@ -27,6 +32,38 @@ import org.junit.jupiter.api.Test;
  * Created at 23.09.2026
  */
 class GmailImapMessageIdsTest {
+
+    @Test
+    void diagnoseLiveTrashFetch() throws Exception {
+        String email = System.getenv("DISPATCH_DIAG_EMAIL");
+        String token = System.getenv("DISPATCH_DIAG_ACCESS");
+        Assumptions.assumeTrue(email != null && token != null);
+        Properties config = new Properties();
+        config.put("mail.imaps.auth.mechanisms", "XOAUTH2");
+        try (Store store = new GmailImapStore(Session.getInstance(config))) {
+            store.connect("imap.gmail.com", 993, email, token);
+            IMAPFolder trash = null;
+            for (jakarta.mail.Folder folder : store.getDefaultFolder().list("*")) {
+                if (folder instanceof IMAPFolder imap &&
+                    java.util.Arrays.stream(imap.getAttributes())
+                        .anyMatch(attribute -> "\\Trash".equalsIgnoreCase(attribute))) {
+                    trash = imap;
+                    break;
+                }
+            }
+            assertThat(trash).isNotNull();
+            trash.open(jakarta.mail.Folder.READ_ONLY);
+            try {
+                long first = trash.getUID(trash.getMessage(Math.max(1, trash.getMessageCount() - 9)));
+                long last = trash.getUID(trash.getMessage(trash.getMessageCount()));
+                assertThat(GmailImapMessageIds.fetch(trash, first, last))
+                    .as("Gmail IDs in a live Trash UID range")
+                    .isNotEmpty();
+            } finally {
+                trash.close(false);
+            }
+        }
+    }
 
     @Test
     void convertsUnsignedImapIdentityToGmailApiIdentity() {
