@@ -6,7 +6,7 @@ SMTP and IMAP continue to reach the mail server. The VPS already has a TikFetch
 Nginx container listening on ports 80 and 443; do not start a second public
 Nginx container.
 
-When deploying later:
+When deploying:
 
 1. Put the Dispatch checkout at `/opt/dispatch`. Set production values in its
    ignored `.env`; keep `APP_PORT=8080`, set
@@ -26,7 +26,7 @@ When deploying later:
    because the live certificate files are symlinks into its archive directory.
 3. Recreate the shared Nginx container using the TikFetch compose files, then
    run `nginx -t` inside it and verify the HTTPS page and ACME challenge path.
-   Recheck it after certificate renewal; Nginx needs a reload to use a renewed
-   certificate.
+   Install `docker/nginx/reload-on-renewal.sh` as an executable file in
+   `/etc/letsencrypt/renewal-hooks/deploy/` so Nginx reloads renewed certificates.
 
-This repository only prepares the configuration. It does not alter the VPS.
+The mail hostname remains DNS only in Cloudflare because it is the MX target.
