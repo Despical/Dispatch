@@ -115,6 +115,10 @@ function readableAccounts() { return state.accounts.length > 0 || !!mailSharing?
 let extraUndo: (() => Promise<void>) | null = null;
 let trashTotal = 0;
 
+function renderTrashCount(): void {
+  $('[data-trash-count]').textContent = state.trash && trashTotal > 0 ? String(trashTotal) : '';
+}
+
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   if (error instanceof Error && error.message) return error.message;
@@ -270,6 +274,7 @@ async function loadAccounts(showLoading = true): Promise<void> {
 }
 
 function renderAccounts(): void {
+  renderTrashCount();
   if (accountOrder?.busy()) { pendingAccountRender = true; return; }
   pendingAccountRender = false;
   const list = $<HTMLElement>('[data-account-list]'); list.replaceChildren();
@@ -419,7 +424,7 @@ async function refreshTrashCount(): Promise<void> {
       const result = await api<{ count: number }>(`/api/mail/trash/count${state.accountId ? `?accountId=${state.accountId}` : ''}`);
     if (request !== trashCountRequest) return;
     trashTotal = result.count;
-    $('[data-trash-count]').textContent = trashTotal > 0 ? String(trashTotal) : '';
+    renderTrashCount();
     updatePanePrimaryAction();
   } catch { /* Keep the last known count when offline. */ }
 }
