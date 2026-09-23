@@ -6,7 +6,6 @@ out/
 .env
 .env.*
 !.env.example
-flyway.conf
 node_modules/
 frontend/dist/
 src/main/resources/static/assets/
