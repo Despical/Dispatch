@@ -21,6 +21,8 @@ import dev.despical.dispatch.config.DispatchProperties;
 import dev.despical.dispatch.entity.mail.MailAccount;
 import dev.despical.dispatch.security.CryptoService;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
 import jakarta.mail.Transport;
@@ -52,6 +54,13 @@ public class MailConnectionFactory {
         this.allowPrivateHosts = properties.mail().allowPrivateHosts();
         this.hostPolicy = hostPolicy;
         this.googleOAuth = googleOAuth;
+    }
+
+    @PostConstruct
+    void initializeProviders() throws MessagingException {
+        Session session = Session.getInstance(new Properties());
+        session.getStore("imaps");
+        session.getTransport("smtp");
     }
 
     public Store openImap(MailAccount account) throws Exception {

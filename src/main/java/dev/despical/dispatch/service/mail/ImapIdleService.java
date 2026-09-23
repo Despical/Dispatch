@@ -52,7 +52,8 @@ public class ImapIdleService {
     public void ensureListeners() {
         for (MailAccount account : accounts.findAllByActiveTrueOrderByDisplayNameAsc()) {
             if (active.add(account.getId())) {
-                Thread.startVirtualThread(() -> idleLoop(account.getId()));
+                Thread.ofPlatform().daemon().name("imap-idle-" + account.getId())
+                    .start(() -> idleLoop(account.getId()));
             }
         }
     }
