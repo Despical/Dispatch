@@ -27,6 +27,8 @@ import dev.despical.dispatch.repository.mail.MailMessageRepository;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import org.eclipse.angus.mail.imap.IMAPFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class MailSyncService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailSyncService.class);
 
     private final MailAccountRepository accounts;
     private final MailFolderRepository folders;
@@ -155,6 +159,10 @@ public class MailSyncService {
                 lastSuccessfulSync = Instant.now();
                 events.publishEvent(new MailSyncCompletedEvent(accountId, true, Instant.now()));
             } catch (Exception exception) {
+                Throwable root = exception;
+                while (root.getCause() != null) root = root.getCause();
+                LOGGER.warn("Mail sync failed for account {}: {}", accountId,
+                    root.getClass().getSimpleName());
                 markStatus(accountId, "ERROR",
                     "Synchronization failed. Check server connectivity and credentials.",
                     false);
