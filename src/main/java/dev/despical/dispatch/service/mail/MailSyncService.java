@@ -305,8 +305,12 @@ public class MailSyncService {
             for (Message source : fetched) {
                 if (source != null && !source.isExpunged()) {
                     long uid = uidFolder.getUID(source);
-                    if (uid > 0 && !gmailIds.containsKey(uid))
+                    if (uid > 0 && !gmailIds.containsKey(uid)) {
+                        LOGGER.warn("Gmail ID missing for account {} in {}: uid {}, fetched {}, ids {}",
+                            account.getId(), local.getSpecialUse(), uid, fetched.length,
+                            gmailIds.size());
                         throw new IllegalStateException("Gmail did not provide a stable message ID.");
+                    }
                 }
             }
         }
