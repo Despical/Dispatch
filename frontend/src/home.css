@@ -11,8 +11,7 @@
 .home-hero-description { margin: 0; max-width: 450px; color: var(--home-muted); font-size: 17px; line-height: 1.8; }
 .home-hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 22px; margin-top: 30px; }
 .home-hero-actions .public-button { padding-inline: 18px; }
-.public-page[data-page="home"] .public-button-primary { background: #bca7ed; border-color: #cab7f4; color: #20162f; font-size: 15px; font-weight: 650; border-radius: 7px; min-height: 48px; }
-.public-page[data-page="home"] .public-button-primary:hover { background: #ac92e4; border-color: #bca5eb; }
+.public-page[data-page="home"] .public-button-primary { font-size: 15px; font-weight: 650; border-radius: 7px; min-height: 48px; }
 .home-explore-link { display: inline-flex; align-items: center; gap: 10px; color: #d1c8e4; font-size: 15px; font-weight: 500; }
 .home-explore-link:hover { color: #efe7ff; }
 .home-access-note { display: flex; align-items: center; gap: 7px; margin: 23px 0 0; font-size: 14px; line-height: 1.6; color: #a09aad; }
