@@ -24,8 +24,10 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 
 import dev.despical.dispatch.entity.mail.MailAccount;
+import dev.despical.dispatch.entity.security.AdminUser;
 import dev.despical.dispatch.repository.mail.MailAccountRepository;
 import dev.despical.dispatch.repository.mail.MailMessageRepository;
+import dev.despical.dispatch.repository.security.AdminUserRepository;
 import dev.despical.dispatch.security.CryptoService;
 import dev.despical.dispatch.service.mail.MailSyncService;
 
@@ -51,6 +53,8 @@ class MailSyncIntegrationTest extends MySqlIntegrationTestSupport {
     MailAccountRepository accounts;
     @Autowired
     MailMessageRepository messages;
+    @Autowired
+    AdminUserRepository admins;
     @Autowired
     MailSyncService sync;
     @Autowired
@@ -79,6 +83,11 @@ class MailSyncIntegrationTest extends MySqlIntegrationTestSupport {
             "Unread body",
             greenMail.getSmtp().getServerSetup());
         MailAccount account = new MailAccount();
+        AdminUser owner = new AdminUser();
+        owner.setEmail("mail-sync-admin@example.test");
+        owner.setDisplayName("Mail Sync Test");
+        owner.setPasswordHash("not-used-by-this-test");
+        account.setOwner(admins.saveAndFlush(owner));
         account.setDisplayName("GreenMail");
         account.setEmail("manager@localhost");
         account.setUsername("manager");
