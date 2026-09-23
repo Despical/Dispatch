@@ -161,8 +161,10 @@ public class MailSyncService {
             } catch (Exception exception) {
                 Throwable root = exception;
                 while (root.getCause() != null) root = root.getCause();
-                LOGGER.warn("Mail sync failed for account {}: {}", accountId,
-                    root.getClass().getSimpleName());
+                StackTraceElement origin = root.getStackTrace().length == 0 ? null
+                    : root.getStackTrace()[0];
+                LOGGER.warn("Mail sync failed for account {}: {} at {}", accountId,
+                    root.getClass().getSimpleName(), origin);
                 markStatus(accountId, "ERROR",
                     "Synchronization failed. Check server connectivity and credentials.",
                     false);
