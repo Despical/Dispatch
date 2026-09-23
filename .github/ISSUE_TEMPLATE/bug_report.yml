@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a reproducible problem with Dispatch
+body:
+  - type: markdown
+    attributes:
+      value: For security vulnerabilities, follow [SECURITY.md](../../SECURITY.md) and do not post details publicly.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: 1. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Dispatch version or commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Java version, browser, and relevant deployment details. Do not include secrets or message contents.
+    validations:
+      required: true

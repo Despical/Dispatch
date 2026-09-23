@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<header class="topbar" th:fragment="header">
+    <a aria-label="Dispatch home" class="brand" href="/"><img alt="" class="brand-logo"
+                                                              th:src="@{/favicon.svg(v=2)}"><span>Dispatch</span></a>
+    <div class="top-actions">
+        <button aria-label="Open admin navigation" class="icon-button mobile-only" data-open-admin-nav type="button">☰
+        </button>
+        <button aria-expanded="false" aria-haspopup="menu" class="user-menu-button" data-account-menu type="button">
+            <span class="avatar-button" th:text="${publicInitials}">BA</span>
+            <span class="user-menu-copy"><strong th:text="${publicName}">Berke Akçen</strong><small
+                th:text="${publicRoleLabel}">Administrator</small></span>
+            <svg aria-hidden="true" class="user-menu-chevron" viewBox="0 0 24 24">
+                <path d="m7 10 5 5 5-5"/>
+            </svg>
+        </button>
+    </div>
+</header>
+<aside class="account-pane admin-sidebar" data-admin-nav th:fragment="sidebar(active)">
+    <nav aria-label="Admin navigation" class="sidebar-primary">
+        <a class="nav-item admin-nav-link" href="/mail">
+            <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                <path d="M4 6.5h16v11H4zM4.5 7l7.5 6 7.5-6"/>
+            </svg>
+            <span>Mail workspace</span></a>
+        <a class="nav-item admin-nav-link" href="/admin/status"
+           th:attr="aria-current=${active == 'status'} ? 'page' : null"
+           th:classappend="${active == 'status'} ? ' active'">
+            <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                <path d="M3 17h4l3-10 4 13 3-7h4"/>
+            </svg>
+            <span>System status</span>
+        </a>
+        <a class="nav-item admin-nav-link" href="/admin/users"
+           th:attr="aria-current=${active == 'users'} ? 'page' : null"
+           th:classappend="${active == 'users'} ? ' active'">
+            <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                <path
+                    d="M16 20v-1.7a3.3 3.3 0 0 0-3.3-3.3H7.3A3.3 3.3 0 0 0 4 18.3V20M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM16 8h5M18.5 5.5v5"/>
+            </svg>
+            <span>Administrators</span>
+        </a>
+    </nav>
+</aside>
+<div class="account-popover hidden" data-account-popover popover="manual" role="menu" th:fragment="profile-menu">
+    <a href="/mail" role="menuitem">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M4 6.5h16v11H4zM4.5 7l7.5 6 7.5-6"/>
+        </svg>
+        <span>Mail workspace</span></a>
+    <div class="account-popover-separator" role="separator"></div>
+    <button data-logout role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/>
+        </svg>
+        <span>Sign out on this device</span></button>
+    <button class="danger-menu-item" data-logout-all role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M12 3v8M7.8 5.5a8 8 0 1 0 8.4 0"/>
+        </svg>
+        <span>Sign out everywhere</span></button>
+</div>
+</html>

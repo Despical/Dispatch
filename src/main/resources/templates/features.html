@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Features')}"></head>
+<body class="public-page features-page" data-page="public">
+<header th:replace="~{fragments/public :: header}"></header>
+<main id="main-content">
+    <section class="public-container features-intro" aria-labelledby="features-title">
+        <h1 id="features-title">Your accounts.<br>Your conversations.<br><span>One workspace.</span></h1>
+        <div class="features-intro-copy">
+            <p>A place for every inbox, and the tools to keep it moving. Read, reply, and organize your email together in Dispatch.</p>
+            <a class="public-button public-button-primary" th:href="@{/login}">Open your workspace</a>
+        </div>
+    </section>
+    <section class="public-container features-inbox" aria-labelledby="features-inbox-title">
+        <div class="features-inbox-copy">
+            <svg class="features-section-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 13h5l2 3h4l2-3h5M8 8h8"/></svg>
+            <h2 id="features-inbox-title">Bring your inboxes<br>into focus.</h2>
+            <p>Read across your connected accounts in one inbox. When you need a closer look, switch to an individual mailbox and keep the context.</p>
+            <ul class="features-inline-list"><li>Unified inbox</li><li>Individual mailboxes</li><li>Account ordering</li></ul>
+        </div>
+        <div class="features-inbox-visual" role="img" aria-label="Connected mailboxes come together in a unified inbox, with All, Unread, and Starred views.">
+            <div class="features-source-stack" aria-hidden="true">
+                <div><span class="features-mail-symbol"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>Personal</div>
+                <div><span class="features-mail-symbol"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>Work</div>
+                <div><span class="features-mail-symbol"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>Shared</div>
+            </div>
+            <div class="features-inbox-preview" aria-hidden="true">
+                <div class="features-preview-title"><img src="/favicon.svg" th:src="@{/favicon.svg}" width="26" height="26" alt=""><strong>All inboxes</strong></div>
+                <div class="features-preview-tabs"><span>All</span><span>Unread</span><span>Starred</span></div>
+                <div class="features-preview-message"><i></i><div><b></b><span></span></div><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></div>
+                <div class="features-preview-message"><i></i><div><b></b><span></span></div></div>
+                <div class="features-preview-message"><i></i><div><b></b><span></span></div></div>
+            </div>
+        </div>
+    </section>
+    <section class="public-container features-workflow" aria-labelledby="features-workflow-title">
+        <div class="features-section-heading"><h2 id="features-workflow-title">From the first read<br>to the next reply.</h2><p>The everyday details, taken care of.<br>Keep your attention on the conversation.</p></div>
+        <div class="features-workflow-grid">
+            <article class="features-workflow-item">
+                <div class="features-tool-visual features-find-visual" aria-hidden="true"><span><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>Search mail</span><div><i>Unread</i><i>Starred</i><i>Pinned</i></div></div>
+                <h3>Find what matters.</h3><p>Search your messages, filter unread mail, and star or pin the conversations you want to return to.</p>
+            </article>
+            <article class="features-workflow-item">
+                <div class="features-tool-visual features-write-visual" aria-hidden="true"><div><svg viewBox="0 0 24 24"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15Z"/></svg><span>Reply</span><i>Draft saved</i></div><span class="features-write-line"></span><span class="features-write-line"></span><span class="features-write-line"></span></div>
+                <h3>Pick up where you left off.</h3><p>Reply from the receiving account. Drafts save as you write, with quick responses and saved contacts close at hand.</p>
+            </article>
+            <article class="features-workflow-item">
+                <div class="features-tool-visual features-send-visual" aria-hidden="true"><span>Queued</span><i></i><span>Sending</span><i></i><span>Sent<svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span></div>
+                <h3>Know where things stand.</h3><p>Follow outgoing mail from queued to sent, or see when it needs attention. Sent means your mail server accepted the message.</p>
+            </article>
+        </div>
+    </section>
+    <section class="features-sharing" aria-labelledby="features-sharing-title">
+        <div class="public-container features-sharing-layout">
+            <div class="features-sharing-copy"><svg class="features-section-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-3-5"/></svg><h2 id="features-sharing-title">A shared mailbox.<br>A clear set of permissions.</h2><p>Give another Dispatch user access to selected mailboxes. Choose what they can do, with separate controls for reading, sending, organizing, and moving messages to Trash.</p></div>
+            <dl class="features-permissions"><div><dt>View</dt><dd>Read the mailbox and its conversations.</dd></div><div><dt>Send</dt><dd>Write and reply from the shared account.</dd></div><div><dt>Organize</dt><dd>Keep the mailbox in order.</dd></div><div><dt>Trash</dt><dd>Move messages out of the inbox.</dd></div></dl>
+        </div>
+    </section>
+    <section class="public-container features-connect" aria-labelledby="features-connect-title">
+        <div><h2 id="features-connect-title">Keep your email.<br>Change your workspace.</h2><p>Connect Gmail through Google authorization, or use secure IMAP and SMTP for other providers. Your accounts stay with their existing providers.</p><p class="features-provider-note">Some providers require an app password.</p></div>
+        <div class="features-connect-actions"><a class="public-button public-button-primary" th:href="@{/login}">Open Dispatch</a><a class="public-text-link" th:href="@{/contact}">Questions about your setup?</a></div>
+    </section>
+</main>
+<footer th:replace="~{fragments/public :: footer}"></footer>
+</body>
+</html>

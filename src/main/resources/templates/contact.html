@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Contact')}"></head>
+<body class="public-page" data-page="public">
+<header th:replace="~{fragments/public :: header}"></header>
+<main id="main-content">
+    <div class="public-container public-info-hero">
+        <h1>Let's talk.</h1>
+        <p>Questions, feedback, or help with Dispatch. Here's how to reach us.</p>
+    </div>
+    <div class="public-container public-info-content contact-layout">
+        <section aria-labelledby="contact-email-title" class="contact-main-card">
+            <h2 id="contact-email-title">Email us directly</h2>
+            <a class="contact-address" href="mailto:contact@despical.dev">contact@despical.dev</a>
+            <p>Tell us what you're trying to do and how we can help. All product, support, and privacy enquiries go to
+                this address.</p>
+            <a class="public-button public-button-primary" href="mailto:contact@despical.dev">Write an email</a>
+            <div class="contact-message-note">
+                <h3>Include a little context</h3>
+                <p>For a technical issue, include your browser, what happened, and any error message. Remove private
+                    information from screenshots before sharing them.</p>
+            </div>
+        </section>
+        <div class="contact-topics">
+            <h2>What can we help with?</h2>
+            <section class="contact-topic">
+                <h3>Account &amp; mailbox support</h3>
+                <p>Questions about signing in, connecting an email account, or using the workspace.</p>
+                <a class="public-text-link" href="mailto:contact@despical.dev?subject=Dispatch%20support">Get
+                    support</a>
+            </section>
+            <section class="contact-topic">
+                <h3>Product feedback</h3>
+                <p>Share a suggestion, tell us what could work better, or report a problem.</p>
+                <a class="public-text-link" href="mailto:contact@despical.dev?subject=Dispatch%20feedback">Share
+                    feedback</a>
+            </section>
+            <section class="contact-topic">
+                <h3>Privacy &amp; your data</h3>
+                <p>Ask about how your information is handled or send a request concerning your data.</p>
+                <a class="public-text-link" th:href="@{/privacy-policy}">Read the Privacy Policy</a>
+            </section>
+            <section class="contact-topic">
+                <h3>Security concerns</h3>
+                <p>Found a possible vulnerability? See how to submit a security report.</p>
+                <a class="public-text-link" th:href="@{/security#report}">Security reporting</a>
+            </section>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/public :: footer}"></footer>
+</body>
+</html>

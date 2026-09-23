@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Privacy policy')}"></head>
+<body class="public-page" data-page="public">
+<header th:replace="~{fragments/public :: header}"></header>
+<main id="main-content">
+    <div class="legal-hero public-container">
+        <h1>Privacy policy</h1>
+        <p>How Dispatch processes account information, email content, and service data.</p>
+        <div class="legal-meta">Last updated
+            <time datetime="2026-09-22">September 22, 2026</time>
+        </div>
+    </div>
+    <div class="legal-layout public-container">
+        <aside aria-label="On this page" class="legal-nav">
+            <span>On this page</span>
+            <nav aria-label="Privacy policy sections">
+                <a href="#overview">Overview</a>
+                <a href="#information">Information we process</a>
+                <a href="#use">How it is used</a>
+                <a href="#sharing">Connections &amp; sharing</a>
+                <a href="#cookies">Cookies &amp; security</a>
+                <a href="#retention">Storage &amp; deletion</a>
+                <a href="#choices">Your choices</a>
+                <a href="#contact">Contact us</a>
+            </nav>
+        </aside>
+        <article class="legal-content">
+            <section class="legal-section" id="overview">
+                <h2>01. About this policy</h2>
+                <p>Dispatch is a webmail application that connects you to your existing email accounts. This policy
+                    explains how this Dispatch service processes information when you visit the site, sign in, connect a
+                    mailbox, or contact us.</p>
+                <p>Your email provider operates separately from Dispatch and has its own privacy policy. If you use a
+                    Dispatch installation managed by another organization, that organization controls its hosting,
+                    access, and data handling; contact its administrator for details.</p>
+            </section>
+            <section class="legal-section" id="information">
+                <h2>02. Information we process</h2>
+                <ul>
+                    <li><strong>Account information:</strong> your name, email address, password hash, authenticator
+                        setup, and hashed recovery codes.
+                    </li>
+                    <li><strong>Workspace information:</strong> your user role, saved contacts and favorites, mailbox
+                        sharing permissions, selected shared accounts, and sidebar preferences.
+                    </li>
+                    <li><strong>Mailbox connection information:</strong> account names, email addresses, mail server
+                        settings, usernames, encrypted mailbox credentials, and signatures.
+                    </li>
+                    <li><strong>Email content:</strong> senders, recipients, subjects, message bodies, attachments,
+                        folders, message flags, drafts, quick responses, and outgoing mail status.
+                    </li>
+                    <li><strong>Security and operational information:</strong> sign-in events, IP addresses, browser
+                        information, session records, connection errors, and service health metrics.
+                    </li>
+                    <li><strong>Correspondence:</strong> your email address and the information you choose to include
+                        when contacting us.
+                    </li>
+                </ul>
+            </section>
+            <section class="legal-section" id="use">
+                <h2>03. How information is used</h2>
+                <p>We use this information to authenticate users, synchronize connected mailboxes, display and organize
+                    messages, save drafts, send email at your request, and respond to support inquiries. Security events
+                    and operational information help us prevent unauthorized access and investigate service
+                    problems.</p>
+                <p>Dispatch does not include advertising trackers or third-party analytics in its public pages or mail
+                    interface. Mail content is used to provide the mailbox features you request.</p>
+            </section>
+            <section class="legal-section" id="sharing">
+                <h2>04. Connections and sharing</h2>
+                <p>When you share mailboxes, the users you select can access those mailboxes according to the
+                    permissions you grant. Shared access may include reading messages and attachments, sending messages,
+                    organizing mail, or moving messages to Trash. You can change or revoke the share from Mailbox
+                    sharing.</p>
+                <p>Dispatch connects to the email servers you configure to receive and send messages. Sending email
+                    shares its content and attachments with the recipients you select and the mail providers involved in
+                    delivery. The server hosting this installation stores the data needed to provide the service.</p>
+                <p>Remote images in received messages are blocked by default. If you choose to load them, your browser
+                    contacts the image host, which may receive your IP address and learn that the message was viewed.
+                    Opening external links also takes you to services with their own privacy practices.</p>
+                <p>Attachments are scanned by the antivirus service configured for this installation. Support
+                    correspondence is processed through our email provider. Information may also need to be disclosed
+                    where applicable law requires it.</p>
+            </section>
+            <section class="legal-section" id="cookies">
+                <h2>05. Cookies and security</h2>
+                <p>Your browser also stores shared mailbox ordering and the storage panel preference locally for your
+                    account. Mail view URLs include the current mailbox, filter, search text, page, and selected message
+                    identifier; these can appear in browser history and in links you copy.</p>
+                <p>Dispatch uses essential cookies to keep you signed in and protect requests against forgery. Initial
+                    administrator setup also uses a short-lived setup cookie. These cookies support authentication and
+                    security; they are not used for advertising. Blocking them can prevent sign-in and mailbox actions
+                    from working. Your cookie notice choice is stored in this browser.</p>
+                <p>User and administrator sign-in requires a password and authenticator verification or a recovery code.
+                    Mailbox credentials and authenticator secrets are encrypted in storage; account passwords and
+                    recovery codes are hashed. Message content and attachments are stored on the installation's server
+                    and are not end-to-end encrypted by Dispatch. No system can guarantee absolute security.</p>
+            </section>
+            <section class="legal-section" id="retention">
+                <h2>06. Storage and deletion</h2>
+                <p>Messages, drafts, attachments, account records, and security records are stored on the server running
+                    Dispatch. Removing a mailbox connection stops its use and replaces its stored credential, but does
+                    not by itself erase all previously synchronized mail or delete anything from the email provider.</p>
+                <p>Messages and drafts moved to Dispatch's Trash are scheduled for local deletion after 90 days, or can
+                    be removed earlier with Empty Trash. Provider copies and server backups are managed separately.
+                    Other stored records do not have a universal automatic deletion period in the application.</p>
+                <p>Contact us to request deletion or to ask about the retention and backup arrangements for this
+                    service. We will explain what can be removed, any records that must be retained, and any relevant
+                    limitations before acting on the request.</p>
+            </section>
+            <section class="legal-section" id="choices">
+                <h2>07. Your choices and requests</h2>
+                <p>You can remove connected mailboxes, sign out of the current device or all devices, and choose whether
+                    to load remote images. You can contact us to request access to, correction of, or deletion of your
+                    information, or to raise a privacy concern. Depending on the law that applies to you, additional
+                    rights may be available.</p>
+                <p>We may need to verify your identity before providing account information or acting on a request.
+                    Please do not send passwords, authenticator codes, or recovery codes by email.</p>
+            </section>
+            <section class="legal-section" id="contact">
+                <h2>08. Contact and updates</h2>
+                <p>We may update this policy as the service changes. The date at the top identifies the latest
+                    version.</p>
+                <div class="legal-callout">
+                    <h3>A question about your privacy?</h3>
+                    <p>Contact Despical at <a href="mailto:contact@despical.dev">contact@despical.dev</a> for privacy
+                        requests, account questions, or help understanding this policy.</p>
+                </div>
+                <p>See also our <a href="/terms-of-service">Terms of service</a>.</p>
+            </section>
+        </article>
+    </div>
+</main>
+<footer th:replace="~{fragments/public :: footer}"></footer>
+</body>
+</html>

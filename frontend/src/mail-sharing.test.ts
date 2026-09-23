@@ -1,0 +1,41 @@
+// @vitest-environment jsdom
+import {readFileSync} from 'node:fs';
+import {dirname,resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {beforeEach,it,expect,vi} from 'vitest';
+import {initMailSharing} from './mail-sharing';
+const {mockedApi}=vi.hoisted(()=>({mockedApi:vi.fn()}));
+vi.mock('./api',()=>({api:mockedApi}));
+const template=readFileSync(resolve(dirname(fileURLToPath(import.meta.url)),'../../src/main/resources/templates/mail.html'),'utf8');
+beforeEach(()=>{localStorage.clear();document.body.innerHTML=new DOMParser().parseFromString(template,'text/html').body.innerHTML;document.body.dataset.adminId='42';});
+it('reorders shared groups and child accounts independently and preserves order after rerender',async()=>{
+  const grant=(id:number)=>({id,email:`owner${id}@example.test`,displayName:'Owner',enabled:true,hidden:false,canView:true,canSend:false,canOrganize:false,canDelete:false,accountIds:[id*10,id*10+1],accountPermissions:[id*10,id*10+1].map(accountId=>({accountId,canView:true,canSend:false,canOrganize:false,canDelete:false})),accounts:[{id:id*10,email:'first@example.test',authProvider:'PASSWORD'},{id:id*10+1,email:'second@example.test',authProvider:'PASSWORD'}]});
+  mockedApi.mockResolvedValue({outgoing:[],incoming:[grant(1),grant(2)],ownAccounts:[]});
+  const control=initMailSharing({closeMenu:vi.fn(),changed:vi.fn(),select:vi.fn(),selected:()=>null,confirm:async()=>false});
+  await control.refresh();
+  const key=(selector:string)=>document.querySelector(selector)!.dispatchEvent(new KeyboardEvent('keydown',{bubbles:true,altKey:true,key:'ArrowUp'}));
+  key('[data-shared-group="2"] .shared-owner');await Promise.resolve();await Promise.resolve();
+  key('[data-shared-account="11"]');await Promise.resolve();await Promise.resolve();
+  control.renderSidebar();
+  expect([...document.querySelectorAll<HTMLElement>('[data-shared-group]')].map(node=>node.dataset.sharedGroup)).toEqual(['2','1']);
+  expect([...document.querySelectorAll<HTMLElement>('[data-shared-group="1"] [data-shared-account]')].map(node=>node.dataset.sharedAccount)).toEqual(['11','10']);
+  expect(JSON.parse(localStorage.getItem('dispatch:shared-order:42')!)).toEqual({groups:[2,1],'accounts:1':[11,10]});
+});
+it('remembers the open state of every shared group independently after a fresh initialization',async()=>{
+  const grant=(id:number)=>({id,email:`owner${id}@example.test`,displayName:'Owner',enabled:true,hidden:false,canView:true,canSend:false,canOrganize:false,canDelete:false,accountIds:[id*10],accountPermissions:[{accountId:id*10,canView:true,canSend:false,canOrganize:false,canDelete:false}],accounts:[{id:id*10,email:`mail${id}@example.test`,authProvider:'PASSWORD'}]});
+  mockedApi.mockResolvedValue({outgoing:[],incoming:[grant(1),grant(2),grant(3)],ownAccounts:[]});
+  const options={closeMenu:vi.fn(),changed:vi.fn(),select:vi.fn(),selected:()=>null,confirm:async()=>false};
+  const first=initMailSharing(options);await first.refresh();
+  document.querySelector<HTMLButtonElement>('[data-shared-group="1"] .shared-owner')!.click();
+  document.querySelector<HTMLButtonElement>('[data-shared-group="3"] .shared-owner')!.click();
+  expect(localStorage.getItem('dispatch:shared-expanded:42')).toBe('[1,3]');
+  document.body.innerHTML=new DOMParser().parseFromString(template,'text/html').body.innerHTML;document.body.dataset.adminId='42';
+  const restored=initMailSharing(options);await restored.refresh();
+  expect(document.querySelector('[data-shared-group="1"] .shared-owner')!.getAttribute('aria-expanded')).toBe('true');
+  expect(document.querySelector('[data-shared-group="2"] .shared-owner')!.getAttribute('aria-expanded')).toBe('false');
+  expect(document.querySelector('[data-shared-group="3"] .shared-owner')!.getAttribute('aria-expanded')).toBe('true');
+  document.querySelector<HTMLButtonElement>('[data-shared-group="1"] .shared-owner')!.click();restored.renderSidebar();
+  expect(document.querySelector('[data-shared-group="1"] .shared-owner')!.getAttribute('aria-expanded')).toBe('false');
+  expect(document.querySelector('[data-shared-group="3"] .shared-owner')!.getAttribute('aria-expanded')).toBe('true');
+  expect(localStorage.getItem('dispatch:shared-expanded:42')).toBe('[3]');
+});

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Administrators')}"></head>
+<body class="admin-page" data-page="admin-users" th:attr="data-admin-id=${publicAdminId}">
+<header th:replace="~{fragments/admin-shell :: header}"></header>
+<div class="admin-shell">
+    <aside th:replace="~{fragments/admin-shell :: sidebar('users')}"></aside>
+    <main class="admin-status-content" id="main-content">
+        <div class="admin-status-heading">
+            <div><h1>Administrators</h1>
+                <p>Manage panel users and their access.</p></div>
+            <button class="button button-primary" data-open-admin-create type="button">Add user</button>
+        </div>
+        <section aria-label="Panel users" class="admin-status-section admin-users-section">
+            <div class="admin-status-section-head"><h2>Panel users</h2></div>
+            <div data-admin-list><p class="admin-users-loading">Loading users…</p></div>
+        </section>
+        <p class="admin-status-error" data-admin-error role="alert"></p>
+    </main>
+</div>
+<div th:replace="~{fragments/admin-shell :: profile-menu}"></div>
+
+<dialog class="modal" data-admin-create-modal>
+    <form class="modal-card compact-modal-card" data-admin-form>
+        <header><h2>Add user</h2>
+            <button aria-label="Close" class="modal-close-button" data-close-admin-create type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro">The user will set their own password and connect an authenticator on first
+            sign-in.</p>
+        <div class="modal-form-fields">
+            <label>Name<input autocomplete="name" maxlength="120" name="displayName" required></label>
+            <label>Email<input autocomplete="username" name="email" required type="email"></label>
+            <label>Temporary password <span class="hint">14 characters minimum</span><input autocomplete="new-password"
+                                                                                            minlength="14"
+                                                                                            name="password"
+                                                                                            required
+                                                                                            type="password"></label>
+        </div>
+        <fieldset class="user-role-options">
+            <legend>Role</legend>
+            <label><input checked name="role" required type="radio" value="USER"><span><strong>User</strong><small>Mail and shared mailboxes</small></span></label>
+            <label><input name="role" required type="radio" value="ADMIN"><span><strong>Admin</strong><small>Also manages users</small></span></label>
+        </fieldset>
+        <p class="admin-status-error" data-admin-form-error role="alert"></p>
+        <footer>
+            <button class="button button-ghost" data-close-admin-create type="button">Cancel</button>
+            <button class="button button-primary" type="submit">Add user</button>
+        </footer>
+    </form>
+</dialog>
+<dialog class="modal" data-admin-confirm>
+    <section class="modal-card compact-modal-card">
+        <header><h2 data-admin-confirm-title>Confirm change</h2>
+            <button aria-label="Close" class="modal-close-button" data-admin-confirm-cancel type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro" data-admin-confirm-copy></p>
+        <footer>
+            <button class="button button-ghost" data-admin-confirm-cancel type="button">Cancel</button>
+            <button class="button button-danger" data-admin-confirm-accept type="button">Confirm</button>
+        </footer>
+    </section>
+</dialog>
+</body>
+</html>

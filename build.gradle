@@ -1,0 +1,152 @@
+import com.github.gradle.node.pnpm.task.PnpmTask
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.flywaydb:flyway-mysql:13.0.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'org.flywaydb.flyway'
+    id 'com.github.node-gradle.node'
+}
+
+repositories {
+    mavenCentral()
+}
+
+group = 'dev.despical'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+ext {
+    mapstructVersion = '1.6.3'
+    jjwtVersion = '0.13.0'
+    greenMailVersion = '2.1.8'
+    testcontainersVersion = '1.21.3'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    implementation 'org.eclipse.angus:angus-mail'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.flywaydb:flyway-mysql'
+
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.82'
+    implementation 'commons-codec:commons-codec:1.19.0'
+    implementation 'org.jsoup:jsoup:1.23.1'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.3'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation platform("org.testcontainers:testcontainers-bom:${testcontainersVersion}")
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
+    testImplementation "com.icegreen:greenmail-junit5:${greenMailVersion}"
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-parameters']
+}
+
+node {
+    download = true
+    version = '22.17.0'
+    pnpmVersion = '10.28.2'
+    nodeProjectDir = file('frontend')
+}
+
+tasks.named('pnpmInstall') {
+    doNotTrackState('pnpm uses Windows junctions that Gradle cannot snapshot reliably')
+}
+
+tasks.register('frontendTest', PnpmTask) {
+    dependsOn tasks.named('pnpmInstall')
+
+    workingDir = file('frontend')
+    args = ['test']
+}
+
+tasks.register('frontendBuild', PnpmTask) {
+    dependsOn tasks.named('pnpmInstall')
+
+    workingDir = file('frontend')
+    args = ['build']
+
+    inputs.dir(file('frontend/src'))
+    inputs.files(
+        file('frontend/package.json'),
+        file('frontend/vite.config.ts')
+    )
+
+    outputs.dir(file('src/main/resources/static/assets'))
+}
+
+tasks.named('processResources') {
+    dependsOn tasks.named('frontendBuild')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('frontendTest')
+}
+
+tasks.named('bootRun') {
+    sourceResources sourceSets.main
+}
+
+tasks.named('bootJar') {
+    archiveFileName = 'dispatch.jar'
+}
+
+flyway {
+    configFiles = ['flyway.conf']
+}

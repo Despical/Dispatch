@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Security')}"></head>
+<body class="public-page" data-page="public">
+<header th:replace="~{fragments/public :: header}"></header>
+<main id="main-content">
+    <div class="public-container public-info-hero">
+        <h1>Security at Dispatch.</h1>
+        <p>How we protect sign-in, handle email content, and give you control over your sessions.</p>
+    </div>
+    <div class="public-container public-info-content">
+        <div class="public-info-grid">
+            <section class="public-info-card">
+                <span aria-hidden="true" class="public-card-icon"><svg viewBox="0 0 24 24"><rect height="11" rx="2"
+                                                                                                 width="14"
+                                                                                                 x="5" y="10"/><path
+                    d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg></span>
+                <h2>Two-factor sign-in</h2>
+                <p>Sign in with your password and a time-based code from your authenticator app. Recovery codes provide
+                    a way back in if you lose access to your authenticator.</p>
+            </section>
+            <section class="public-info-card">
+                <span aria-hidden="true" class="public-card-icon"><svg viewBox="0 0 24 24"><rect height="16" rx="2"
+                                                                                                 width="18"
+                                                                                                 x="3" y="4"/><path
+                    d="M3 9h18m-8 4-2 2 2 2m4-4 2 2-2 2"/></svg></span>
+                <h2>Isolated email content</h2>
+                <p>Email HTML is sanitized and shown in an isolated frame. This limits what message content can do
+                    within your Dispatch workspace.</p>
+            </section>
+            <section class="public-info-card">
+                <span aria-hidden="true" class="public-card-icon"><svg viewBox="0 0 24 24"><rect height="18" rx="2"
+                                                                                                 width="18"
+                                                                                                 x="3" y="3"/><circle
+                    cx="8" cy="8" r="1"/><path d="m3 17 5-5 4 4 3-3 6 6M3 3l18 18"/></svg></span>
+                <h2>You control remote images</h2>
+                <p>Images hosted by a sender are blocked by default. You choose when to load them, reducing automatic
+                    requests to outside servers as you read.</p>
+            </section>
+            <section class="public-info-card">
+                <span aria-hidden="true" class="public-card-icon"><svg viewBox="0 0 24 24"><path
+                    d="M14 3H5v18h14V8l-5-5Zm0 0v5h5m-11 6 3 3 5-6"/></svg></span>
+                <h2>Attachment checks</h2>
+                <p>Attachments are scanned before download or sending. Access stays blocked while a check is pending,
+                    unavailable, or reports a threat. Scanning reduces risk but cannot detect every harmful file.</p>
+            </section>
+            <section class="public-info-card">
+                <span aria-hidden="true" class="public-card-icon"><svg viewBox="0 0 24 24"><path
+                    d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Z"/><path d="m8 12 3 3 5-6"/></svg></span>
+                <h2>Protected credentials</h2>
+                <p>Stored mailbox credentials are encrypted. Connections to mail providers use TLS, with certificate
+                    identity checks enabled in the standard production configuration.</p>
+            </section>
+            <section class="public-info-card">
+                <span aria-hidden="true" class="public-card-icon"><svg viewBox="0 0 24 24"><rect height="13" rx="2"
+                                                                                                 width="18"
+                                                                                                 x="3" y="4"/><path
+                    d="M8 21h8m-4-4v4m3-14 3 3-3 3m-7-3h10"/></svg></span>
+                <h2>Session controls</h2>
+                <p>Review active sessions and sign-in history, including device information, IP addresses, and local
+                    timestamps, from Sign-in activity. Use the account menu to sign out on this device or revoke all
+                    your sessions.</p>
+            </section>
+        </div>
+        <div class="public-info-bottom">
+            <section class="public-info-note" id="report">
+                <h2>Report a security issue</h2>
+                <p>If you notice a potential vulnerability, email a description and the steps needed to reproduce it.
+                    Please keep passwords, recovery codes, and private email content out of your report.</p>
+                <a class="public-button public-button-primary"
+                   href="mailto:contact@despical.dev?subject=Dispatch%20security%20report">Email a security report</a>
+            </section>
+            <section class="public-info-note public-info-note-plain">
+                <h2>About your email data</h2>
+                <p>Dispatch processes email content to display, organize, and send messages. Encryption of stored
+                    credentials does not mean that email content is end-to-end encrypted.</p>
+                <p>Your email provider also has its own security and privacy practices. Our privacy policy explains the
+                    information Dispatch processes and how it is used.</p>
+                <a class="public-text-link" th:href="@{/privacy-policy}">Read the Privacy Policy</a>
+            </section>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/public :: footer}"></footer>
+</body>
+</html>

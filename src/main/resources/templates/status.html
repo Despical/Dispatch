@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('System status')}"></head>
+<body class="admin-page" data-page="status">
+<header th:replace="~{fragments/admin-shell :: header}"></header>
+<div class="admin-shell">
+    <aside th:replace="~{fragments/admin-shell :: sidebar('status')}"></aside>
+    <main class="admin-status-content" id="main-content">
+        <div class="admin-status-heading"><h1>System status <span
+            aria-label="Live host capacity, application dependencies and active alerts. Auto-refreshes every 30 seconds."
+            class="admin-status-info"
+            tabindex="0">i<span
+            class="admin-status-info-tooltip" role="tooltip">Live host capacity, application dependencies and active alerts. Auto-refreshes every 30 seconds.</span></span>
+        </h1></div>
+        <section aria-live="polite" class="admin-status-banner" data-status-overall-state="UNKNOWN">
+            <span aria-hidden="true" class="admin-status-banner-light"></span>
+            <div><strong data-status-overall>Loading system status…</strong>
+                <p data-status-summary>Service checks will appear shortly.</p>
+            </div>
+            <time data-status-updated>Checking…</time>
+        </section>
+        <section aria-labelledby="capacity-title" class="admin-status-section">
+            <div class="admin-status-section-head"><h2 id="capacity-title">Host capacity</h2>
+                <div class="admin-status-host-meta"><span>LOAD <strong data-status-load>—</strong></span><span>APP UPTIME <strong
+                    data-status-uptime>—</strong></span></div>
+            </div>
+            <div class="admin-status-resources" data-status-resources><p class="admin-status-loading">Loading host capacity…</p></div>
+        </section>
+        <section aria-labelledby="services-title" class="admin-status-section">
+            <div class="admin-status-section-head"><h2 id="services-title">Service health</h2>
+                <p>Checks run from the Dispatch application.</p></div>
+            <div class="admin-status-services" data-status-services><p class="admin-status-loading">Checking services…</p></div>
+        </section>
+        <section aria-labelledby="alerts-title" class="admin-status-section">
+            <div class="admin-status-section-head"><h2 id="alerts-title">Active alerts</h2></div>
+            <div class="admin-status-alerts" data-status-alerts><p class="admin-status-no-alerts">Loading alerts…</p></div>
+        </section>
+        <p class="admin-status-error" data-status-error role="status"></p>
+    </main>
+</div>
+<div th:replace="~{fragments/admin-shell :: profile-menu}"></div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest an improvement to Dispatch
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

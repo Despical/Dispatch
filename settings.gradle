@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
+    plugins {
+        id 'org.springframework.boot' version '4.1.1'
+        id 'io.spring.dependency-management' version '1.1.7'
+        id 'org.flywaydb.flyway' version '13.0.0'
+        id 'com.github.node-gradle.node' version '7.1.0'
+    }
+}
+
+dependencyResolutionManagement {
+    // The Node Gradle plugin registers its distribution repository at project level.
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'dispatch'

@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Request error')}"></head>
+<body class="error-page">
+<main class="error-card">
+    <div class="error-code" th:text="${status ?: 500}">404</div>
+    <h1 th:text="${status == 404 ? 'Page not found' : 'Something went wrong'}">Page not found</h1>
+    <p th:text="${status == 404 ? 'The page you requested does not exist or has moved.' : 'Dispatch could not complete this request. Please try again.'}">
+        The page you requested does not exist.</p>
+    <div class="error-actions">
+        <a class="button button-primary" href="/">Back to Dispatch</a>
+    </div>
+</main>
+</body>
+</html>

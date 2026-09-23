@@ -1,0 +1,49 @@
+groups:
+  - name: dispatch
+    rules:
+      - alert: DispatchUnavailable
+        expr: up{job="dispatch"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "Dispatch is unavailable"
+          description: "Prometheus could not scrape Dispatch for two minutes."
+      - alert: DispatchHighCpu
+        expr: process_cpu_usage{application="dispatch"} > 0.9
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "Dispatch CPU usage is high" }
+      - alert: DispatchHighHeap
+        expr: sum(jvm_memory_used_bytes{application="dispatch",area="heap"}) / sum(jvm_memory_max_bytes{application="dispatch",area="heap"}) > 0.9
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "Dispatch JVM heap is above 90%" }
+      - alert: DispatchDatabasePoolExhausted
+        expr: hikaricp_connections_active{application="dispatch"} / hikaricp_connections_max{application="dispatch"} > 0.9
+        for: 5m
+        labels: { severity: critical }
+        annotations: { summary: "Dispatch database pool is nearly exhausted" }
+      - alert: DispatchMailSyncFailing
+        expr: increase(dispatch_mail_sync_total{result="failure"}[10m]) > 3
+        labels: { severity: warning }
+        annotations: { summary: "Repeated mail synchronization failures" }
+      - alert: DispatchOutboxNeedsReview
+        expr: dispatch_outbox_pending > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "Dispatch outbound queue needs attention" }
+      - alert: DispatchAntivirusUnavailable
+        expr: dispatch_clamav_available == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations: { summary: "Dispatch attachment scanner is unavailable" }
+      - alert: DispatchHostHighMemory
+        expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "Dispatch host memory usage is above 90%" }
+      - alert: DispatchHostDiskLow
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} < 0.1
+        for: 10m
+        labels: { severity: critical }
+        annotations: { summary: "Dispatch host disk space is below 10%" }

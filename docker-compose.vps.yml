@@ -1,0 +1,12 @@
+services:
+  app:
+    networks:
+      default:
+      dispatch-edge:
+        aliases:
+          - dispatch-app
+
+networks:
+  dispatch-edge:
+    external: true
+    name: plugins-hub-edge

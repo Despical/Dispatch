@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Sign in')}"></head>
+<body class="auth-page" data-page="login">
+<main aria-labelledby="auth-title" class="auth-card">
+    <div class="auth-resume" data-login-resume><span></span>Restoring your session…</div>
+    <div class="hidden" data-login-content>
+        <h1 id="auth-title">Sign in to Dispatch</h1>
+        <p class="auth-intro" data-login-intro>Enter your account credentials. You’ll verify with your authenticator
+            next.</p>
+        <div aria-live="assertive" class="alert alert-error hidden" data-auth-error role="alert"></div>
+        <div class="alert auth-success hidden" data-auth-success role="status"></div>
+        <form class="auth-form" data-busy-label="Checking account…" data-login-form>
+            <label>Email<input autocomplete="username" name="email" required type="email"></label>
+            <label>Password<input autocomplete="current-password" name="password" required type="password"></label>
+            <button class="button button-primary" type="submit">Continue</button>
+            <button class="auth-recovery-link auth-forgot-link" data-start-password-recovery type="button">Forgot
+                password?
+            </button>
+        </form>
+        <form class="auth-form hidden" data-busy-label="Resetting password…" data-password-recovery-form>
+            <div class="auth-step-heading"><h2>Reset your password</h2>
+                <p>Use your authenticator and one saved recovery code to verify your account.</p></div>
+            <label>Email<input autocomplete="username" name="email" required type="email"></label>
+            <label>Authenticator code<input autocomplete="one-time-code" inputmode="numeric" name="authenticatorCode"
+                                            required></label>
+            <label>Recovery code<input autocomplete="off" name="recoveryCode" required spellcheck="false"></label>
+            <label>New password<input autocomplete="new-password" maxlength="200" minlength="14" name="newPassword"
+                                      required type="password"></label>
+            <label>Confirm new password<input autocomplete="new-password" maxlength="200" minlength="14"
+                                              name="confirmPassword"
+                                              required type="password"></label>
+            <button class="button button-primary" type="submit">Reset password</button>
+            <button class="button button-ghost" data-back-password-login type="button">Back to sign in</button>
+        </form>
+        <form class="auth-form hidden" data-busy-label="Signing in…" data-totp-form>
+            <section class="totp-setup hidden" data-login-setup>
+                <p class="auth-intro">Scan this QR code with your authenticator app. Complete setup to access
+                    Dispatch.</p>
+                <canvas aria-label="Authenticator setup QR code" data-qr></canvas>
+                <div class="setup-key-block">
+                    <span>Can’t scan the QR code? Copy the setup key.</span>
+                    <div><code data-totp-secret></code>
+                        <button aria-label="Copy setup key" class="copy-icon-button" data-copy-totp
+                                title="Copy setup key"
+                                type="button">
+                            <svg aria-hidden="true" viewBox="0 0 24 24">
+                                <path d="M9 8h10v12H9zM5 16H4V4h10v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <div class="auth-step-heading">
+                <h2>Authenticator code</h2>
+                <p>Enter the current six-digit code from your authenticator app.</p>
+            </div>
+            <div class="setup-password-fields hidden" data-new-password-fields>
+                <label>New password<input autocomplete="new-password" disabled maxlength="200" minlength="14"
+                                          name="newPassword" placeholder="At least 14 characters"
+                                          type="password"></label>
+                <label>Confirm new password<input autocomplete="new-password" disabled maxlength="200" minlength="14"
+                                                  name="confirmPassword" type="password"></label>
+            </div>
+            <label>Authenticator code<input autocomplete="one-time-code" inputmode="numeric" name="code"
+                                            required></label>
+            <button class="button button-primary" type="submit">Verify and sign in</button>
+            <button class="auth-recovery-link" data-start-authenticator-recovery type="button">Lost access to your
+                authenticator?
+            </button>
+            <button class="button button-ghost" data-back-login type="button">Use another account</button>
+        </form>
+        <form class="auth-form hidden" data-busy-label="Checking recovery code…" data-recovery-form>
+            <div class="auth-step-heading"><h2>Reset your authenticator</h2>
+                <p>Enter one of the recovery codes saved when you set up your account. This code works only once.</p>
+            </div>
+            <label>Recovery code<input autocomplete="off" name="recoveryCode" required spellcheck="false"></label>
+            <button class="button button-primary" type="submit">Continue to setup</button>
+            <button class="button button-ghost" data-back-authenticator-code type="button">Back to authenticator code
+            </button>
+        </form>
+        <section class="recovery-codes hidden" data-recovery-codes>
+            <h2>Save your recovery codes</h2>
+            <p class="auth-intro">Each code works once. Store them offline; they will not be shown again.</p>
+            <pre data-recovery-list></pre>
+            <div class="recovery-actions">
+                <button class="button button-ghost" data-download-recovery type="button">Download .txt</button>
+                <button class="button button-primary" data-enter-mail type="button">Open Dispatch</button>
+            </div>
+        </section>
+    </div>
+    <nav aria-label="About Dispatch" class="auth-public-links"><a href="/">Home</a><a href="/privacy-policy">Privacy</a><a
+        href="/terms-of-service">Terms</a></nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Secure setup')}"></head>
+<body class="auth-page" data-page="bootstrap">
+<main aria-labelledby="auth-title" class="auth-card auth-card-wide">
+    <h1 id="auth-title">Create the first administrator</h1>
+    <p class="auth-intro">This route closes permanently after the first administrator is created.</p>
+    <div aria-live="assertive" class="alert alert-error hidden" data-auth-error role="alert"></div>
+    <form class="auth-form" data-bootstrap-form data-busy-label="Creating account…">
+        <label>Your name<input autocomplete="name" maxlength="120" name="displayName" required type="text"></label>
+        <label>Administrator email<input autocomplete="username" name="email" required type="email"></label>
+        <label>Password <span class="hint">14 characters minimum</span><input autocomplete="new-password" minlength="14"
+                                                                              name="password" required
+                                                                              type="password"></label>
+        <button class="button button-primary" type="submit">Create administrator</button>
+    </form>
+    <section class="totp-setup hidden" data-totp-setup>
+        <h2>Connect your authenticator</h2>
+        <p class="auth-intro">Scan the QR code, then enter the current six-digit code. Access is not enabled until this
+            succeeds.</p>
+        <canvas aria-label="TOTP QR code" data-qr></canvas>
+        <div class="setup-key-block">
+            <span>Can’t scan the QR code? Copy the setup key.</span>
+            <div><code data-totp-secret></code>
+                <button aria-label="Copy setup key" class="copy-icon-button" data-copy-totp title="Copy setup key"
+                        type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M9 8h10v12H9zM5 16H4V4h10v1"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <form class="auth-form" data-busy-label="Verifying…" data-totp-form>
+            <label>Authenticator code<input autocomplete="one-time-code" inputmode="numeric" maxlength="6"
+                                            name="code" pattern="[0-9]{6}" required></label>
+            <button class="button button-primary" type="submit">Finish secure setup</button>
+        </form>
+    </section>
+    <section class="recovery-codes hidden" data-recovery-codes>
+        <h2>Save your recovery codes</h2>
+        <p class="auth-intro">Each code works once. Store them offline; they will not be shown again.</p>
+        <pre data-recovery-list></pre>
+        <div class="recovery-actions">
+            <button class="button button-ghost" data-download-recovery type="button">Download .txt</button>
+            <button class="button button-primary" data-enter-mail type="button">Open Dispatch</button>
+        </div>
+    </section>
+</main>
+</body>
+</html>

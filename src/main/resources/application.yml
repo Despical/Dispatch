@@ -1,0 +1,103 @@
+server:
+  port: ${APP_PORT:8080}
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: ${COOKIE_SECURE:false}
+        same-site: ${COOKIE_SAME_SITE:Lax}
+
+spring:
+  application:
+    name: dispatch
+  profiles:
+    default: development
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_batch_fetch_size: 50
+  flyway:
+    enabled: true
+    validate-migration-naming: true
+  thymeleaf:
+    cache: true
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 30MB
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,mailSync,outbox,clamAv
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+dispatch:
+  security:
+    jwt-signing-key-base64: ${JWT_SIGNING_KEY_BASE64}
+    data-encryption-key-base64: ${DATA_ENCRYPTION_KEY_BASE64}
+    bootstrap-token: ${BOOTSTRAP_TOKEN}
+    prometheus-scrape-token: ${PROMETHEUS_SCRAPE_TOKEN}
+    cookie-secure: ${COOKIE_SECURE:false}
+    cookie-same-site: ${COOKIE_SAME_SITE:Lax}
+    access-minutes: 15
+    session-days: 30
+    refresh-grace-seconds: 15
+  mail:
+    storage-path: ${MAIL_STORAGE_PATH:./data/attachments}
+    sync-interval-ms: ${MAIL_SYNC_INTERVAL_MS:60000}
+    allow-private-hosts: ${MAIL_ALLOW_PRIVATE_HOSTS:false}
+    connection-timeout-ms: ${MAIL_CONNECTION_TIMEOUT_MS:10000}
+    read-timeout-ms: ${MAIL_READ_TIMEOUT_MS:30000}
+    attachment-max-bytes: ${ATTACHMENT_MAX_BYTES:26214400}
+    archive-expanded-max-bytes: ${ARCHIVE_EXPANDED_MAX_BYTES:104857600}
+    archive-max-depth: ${ARCHIVE_MAX_DEPTH:3}
+  clamav:
+    host: ${CLAMAV_HOST:localhost}
+    port: ${CLAMAV_PORT:3310}
+    timeout-ms: ${CLAMAV_TIMEOUT_MS:30000}
+  google:
+    client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
+    client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_OAUTH_REDIRECT_URI:}
+  monitoring:
+    prometheus-url: ${PROMETHEUS_URL:http://prometheus:9090}
+    alertmanager-url: ${ALERTMANAGER_URL:http://alertmanager:9093}
+
+logging:
+  level:
+    root: INFO
+    dev.despical.dispatch: INFO

@@ -1,0 +1,96 @@
+name: dispatch
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: dispatch
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  clamav:
+    image: clamav/clamav:1.5.1
+    restart: unless-stopped
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD-SHELL", "printf 'PING\n' | nc 127.0.0.1 3310 | grep PONG"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:mysql://mysql:3306/dispatch?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
+      MAIL_STORAGE_PATH: /app/data/attachments
+      COOKIE_SECURE: "true"
+      COOKIE_SAME_SITE: Strict
+      MAIL_ALLOW_PRIVATE_HOSTS: "false"
+    ports:
+      - "${APP_BIND_HOST:-127.0.0.1}:${APP_HOST_PORT:-8082}:8080"
+    volumes:
+      - attachment-data:/app/data/attachments
+    depends_on:
+      mysql:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/actuator/health/readiness"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  prometheus:
+    image: prom/prometheus:v3.13.2
+    restart: unless-stopped
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--web.enable-lifecycle"]
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./secrets/prometheus_token:/etc/prometheus/prometheus.token:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      app:
+        condition: service_healthy
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v1.12.1
+    restart: unless-stopped
+    command: ["--path.rootfs=/host"]
+    volumes:
+      - /:/host:ro,rslave
+
+  alertmanager:
+    image: quay.io/prometheus/alertmanager:v0.34.1
+    restart: unless-stopped
+    command: ["--config.file=/etc/alertmanager/alertmanager.yml", "--storage.path=/alertmanager"]
+    volumes:
+      - ./secrets/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+
+volumes:
+  mysql-data:
+  attachment-data:
+  clamav-data:
+  prometheus-data:
+  alertmanager-data:

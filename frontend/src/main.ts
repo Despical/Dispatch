@@ -1,0 +1,21 @@
+import './styles.css';
+import './public.css';
+import './public-shell.css';
+import './home.css';
+import './status.css';
+import { initBootstrap, initLogin } from './auth';
+import { initMail } from './mail';
+import { initPublicPage } from './public';
+import { initStatusPage } from './status';
+import { initAdminShell, initAdminUsers } from './admin';
+import { initCookieNotice } from './cookie-notice';
+
+const page = document.body.dataset.page;
+if (page === 'home' || page === 'public' || page === 'login' || page === 'bootstrap') initCookieNotice();
+if (page === 'login') initLogin();
+if (page === 'bootstrap') initBootstrap();
+if (page === 'mail') void initMail();
+if (page === 'home' || page === 'public') initPublicPage();
+if (page === 'status' || page === 'admin-users') initAdminShell();
+if (page === 'status') initStatusPage();
+if (page === 'admin-users') initAdminUsers();

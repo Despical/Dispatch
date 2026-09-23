@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Inbox')}"></head>
+<body class="mail-page" data-page="mail" th:attr="data-admin-id=${adminId}">
+<header class="topbar">
+    <a aria-label="Dispatch home" class="brand" href="/"><img alt="" class="brand-logo"
+                                                              th:src="@{/favicon.svg(v=2)}"><span>Dispatch</span></a>
+    <div class="search-wrap">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/>
+        </svg>
+        <input aria-label="Search mail" data-search placeholder="Search mail" type="search">
+        <kbd>/</kbd>
+    </div>
+    <div class="top-actions">
+        <button aria-label="Open folders" class="icon-button mobile-only" data-open-nav>☰</button>
+        <button aria-expanded="false" aria-haspopup="menu" class="user-menu-button" data-account-menu>
+            <span class="avatar-button" data-user-initials th:text="${adminInitials}">BA</span>
+            <span class="user-menu-copy"><strong data-user-name th:text="${adminName}">Berke Akçen</strong><small
+                th:text="${userRoleLabel}">Administrator</small></span>
+            <svg aria-hidden="true" class="user-menu-chevron" viewBox="0 0 24 24">
+                <path d="m7 10 5 5 5-5"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="global-alert hidden" data-global-alert role="alert"></div>
+
+<main class="mail-shell">
+    <aside class="account-pane" data-account-pane>
+        <nav aria-label="Mail navigation" class="sidebar-primary">
+            <button class="nav-item active" data-unified>
+                <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M4 6.5h16v11H4zM4.5 7l7.5 6 7.5-6"/>
+                </svg>
+                <span>Emails</span>
+            </button>
+            <button class="nav-item nav-send-email" data-compose>
+                <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+                </svg>
+                <span>Send Email</span>
+            </button>
+            <button class="nav-item" data-open-quick-responses type="button">
+                <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M4 4h16v13H9l-5 4V4ZM8 8h8M8 12h5"/>
+                </svg>
+                <span>Quick responses</span>
+            </button>
+            <button class="nav-item" data-contacts type="button">
+                <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                    <path
+                        d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 8h5M17 12h5"/>
+                </svg>
+                <span>Contacts</span></button>
+            <button class="nav-item" data-sent type="button">
+                <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                    <path d="m3 3 19 9-19 9 4-9-4-9ZM7 12h15"/>
+                </svg>
+                <span>Sent</span></button>
+            <button class="nav-item" data-drafts type="button">
+                <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M14 3H5v18h14V8l-5-5Zm0 0v5h5M8 13h8M8 17h5"/>
+                </svg>
+                <span>Drafts</span><span class="nav-count" data-draft-count></span>
+            </button>
+            <button class="nav-item" data-trash>
+                <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
+                    <path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 10v6m4-6v6"/>
+                </svg>
+                <span>Trash</span><span class="nav-count" data-trash-count></span>
+            </button>
+        </nav>
+        <section aria-labelledby="mail-accounts-heading" class="sidebar-accounts">
+            <header class="sidebar-accounts-header">
+                <h2 id="mail-accounts-heading">MAIL ACCOUNTS</h2>
+                <button aria-label="Manage mail accounts" class="sidebar-add-account" data-open-mail-accounts
+                        type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="sidebar-account-empty hidden" data-account-empty>
+                <p>No accounts connected.</p>
+                <button data-open-mail-accounts type="button">Connect an account</button>
+            </div>
+            <div class="account-loading skeleton-list" data-account-loading><i></i><i></i><i></i></div>
+            <div class="sidebar-account-lists">
+                <div data-account-list></div>
+                <div data-shared-account-list></div>
+            </div>
+            <span class="sr-only"
+                  id="account-order-help">Drag to reorder, or use Alt and the up or down arrow keys.</span>
+            <span aria-live="polite" class="sr-only" data-account-order-status role="status"></span>
+        </section>
+    </aside>
+
+    <section aria-label="Messages" class="message-pane">
+        <div class="pane-toolbar">
+            <div class="pane-toolbar-heading">
+                <span class="pane-toolbar-account hidden" data-mailbox-account></span>
+                <h1 data-mailbox-title>Unified inbox</h1>
+            </div>
+            <div class="pane-toolbar-actions">
+                <button aria-label="Synchronize" class="icon-button pane-refresh-button" data-refresh
+                        title="Synchronize">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M20 11a8 8 0 0 0-14.8-4M4 4v5h5M4 13a8 8 0 0 0 14.8 4M20 20v-5h-5"/>
+                    </svg>
+                </button>
+                <button class="button pane-compose-button" data-compose data-compose-toolbar>
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+                    </svg>
+                    <span>Compose</span>
+                </button>
+                <button class="button pane-compose-button hidden" data-add-contact type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <span>Add contact</span></button>
+                <button class="button pane-empty-trash-button hidden" data-empty-trash
+                        title="Permanently delete Trash. Items older than 90 days are deleted automatically."
+                        type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 10v6m4-6v6"/>
+                    </svg>
+                    <span>Empty Trash</span>
+                </button>
+            </div>
+        </div>
+        <div aria-label="Message filters" class="filter-row">
+            <button class="filter-chip active" data-filter="all">All</button>
+            <button class="filter-chip" data-filter="unread">Unread</button>
+            <button class="filter-chip" data-filter="starred">Starred</button>
+            <button class="filter-chip hidden" data-filter="drafts">Drafts</button>
+        </div>
+        <div class="message-list" data-message-list>
+            <div class="message-loading" data-message-loading>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        <div class="empty-state hidden" data-message-empty>
+            <div class="empty-icon">✉</div>
+            <h2 data-message-empty-title>No messages here</h2>
+            <p data-message-empty-text>Try another mailbox or clear the active filters.</p>
+        </div>
+        <div class="pagination hidden" data-pagination>
+            <button class="button button-ghost" data-prev>Previous</button>
+            <span data-page-label></span>
+            <button class="button button-ghost" data-next>Next</button>
+        </div>
+        <div aria-live="polite" class="message-toast hidden" data-message-toast role="status">
+            <span class="message-toast-icon" data-message-toast-icon><svg aria-hidden="true" viewBox="0 0 24 24"><path
+                d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 10v6m4-6v6"/></svg></span>
+            <span data-message-toast-label>Moved to Trash</span>
+            <button data-undo-trash type="button">Undo</button>
+        </div>
+    </section>
+
+    <article class="reading-pane" data-reading-pane>
+        <section class="extra-detail hidden" data-extra-detail></section>
+        <div class="reading-empty" data-reading-empty>
+            <div class="empty-icon">✉</div>
+            <h2 data-reading-empty-title>No message selected</h2>
+            <p data-reading-empty-text>Open a message from the inbox to read it here.</p>
+        </div>
+        <section aria-live="polite" class="selection-detail hidden" data-selection-detail>
+            <div aria-hidden="true" class="selection-illustration">
+                <svg viewBox="0 0 96 96">
+                    <path class="selection-envelope" d="M13 35h70v45H13zM13 35l35 27 35-27M13 80l25-25m45 25L58 55"/>
+                    <circle cx="60" cy="29" r="18"/>
+                    <path class="selection-check" d="m51 29 6 6 12-14"/>
+                </svg>
+            </div>
+            <h2 data-selection-count>1 message selected</h2>
+            <p>Manage the selected messages together.</p>
+            <div class="selection-actions">
+                <button data-selection-delete type="button">
+                    <span data-selection-delete-icon><svg aria-hidden="true" viewBox="0 0 24 24"><path
+                        d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 10v6m4-6v6"/></svg></span>
+                    <span data-selection-delete-label>Delete</span>
+                </button>
+                <button data-selection-unread type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M4 6.5h16v11H4zM4.5 7l7.5 6 7.5-6"/>
+                    </svg>
+                    <span>Mark as unread</span>
+                </button>
+                <div class="selection-divider"></div>
+                <button data-selection-cancel type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m6 6 12 12M18 6 6 18"/>
+                    </svg>
+                    <span>Cancel</span>
+                </button>
+            </div>
+        </section>
+        <div class="message-detail hidden" data-message-detail>
+            <header class="message-header">
+                <div class="message-subject-row">
+                    <button aria-label="Back to message list" class="icon-button mobile-only" data-back-list>←</button>
+                    <h2 data-detail-subject></h2>
+                    <button aria-label="Show original email design" aria-pressed="false"
+                            class="icon-button detail-render-button"
+                            data-render-mode title="Show original email design"
+                            type="button">
+                        <svg aria-hidden="true" viewBox="0 0 24 24">
+                            <path d="M4 4h16v16H4zM4 9h16M9 9v11"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="sender-row">
+                    <span class="sender-avatar" data-sender-avatar></span>
+                    <div class="sender-identity">
+                        <div class="sender-name-line"><strong data-detail-from-name></strong><span
+                            data-detail-from-address></span></div>
+                        <small data-detail-to></small>
+                    </div>
+                    <div class="sender-meta-actions">
+                        <time data-detail-date></time>
+                        <div class="sender-actions">
+                            <button aria-label="Star message" aria-pressed="false"
+                                    class="icon-button detail-action-button detail-star-button" data-toggle-star
+                                    title="Star message"
+                                    type="button">
+                                <svg aria-hidden="true" viewBox="0 0 24 24">
+                                    <path
+                                        d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/>
+                                </svg>
+                            </button>
+                            <div class="detail-menu-wrap">
+                                <button aria-expanded="false" aria-haspopup="menu" aria-label="More actions"
+                                        class="icon-button detail-action-button" data-detail-menu title="More actions"
+                                        type="button">
+                                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                                        <circle cx="5" cy="12" r="1.35"/>
+                                        <circle cx="12" cy="12" r="1.35"/>
+                                        <circle cx="19" cy="12" r="1.35"/>
+                                    </svg>
+                                </button>
+                                <div class="detail-action-menu hidden" data-detail-popover role="menu">
+                                    <button data-load-images role="menuitem" type="button">
+                                        <svg aria-hidden="true" viewBox="0 0 24 24">
+                                            <path d="M4 5h16v14H4zM7 15l3-3 2.5 2.5L15 12l3 3M8.5 9h.01"/>
+                                        </svg>
+                                        <span data-load-images-label>Load remote images</span>
+                                    </button>
+                                    <button data-mark-unread role="menuitem" type="button">
+                                        <svg aria-hidden="true" viewBox="0 0 24 24">
+                                            <path d="M4 6.5h16v11H4zM4.5 7l7.5 6 7.5-6"/>
+                                        </svg>
+                                        <span>Mark as unread</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <iframe class="message-frame" data-message-frame sandbox="allow-scripts" title="Message content"></iframe>
+            <aside aria-describedby="external-link-address" aria-labelledby="external-link-title"
+                   class="external-link-confirm hidden"
+                   data-link-confirm role="alertdialog">
+                <span aria-hidden="true" class="external-link-icon"><svg viewBox="0 0 24 24"><path
+                    d="M12 3 4.5 6v5.5c0 4.5 3.1 7.8 7.5 9.5 4.4-1.7 7.5-5 7.5-9.5V6zM9.5 12l1.7 1.7 3.6-4"/></svg></span>
+                <div class="external-link-copy">
+                    <strong id="external-link-title">Open external link?</strong>
+                    <span data-link-host>This link leaves Dispatch.</span>
+                    <code data-link-address id="external-link-address"></code>
+                </div>
+                <div class="external-link-actions">
+                    <button data-link-cancel type="button">Cancel</button>
+                    <button data-link-open type="button">Continue</button>
+                </div>
+            </aside>
+            <section class="attachments hidden" data-attachments><h3 data-attachment-heading>Attachments</h3>
+                <div data-attachment-list></div>
+                <p class="attachment-warning">Scanning reduces risk but cannot guarantee a file is safe.</p></section>
+            <footer class="message-reply-actions">
+                <button class="reply-action reply-action-primary" data-reply type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m10 8-5 4 5 4M6 12h7a6 6 0 0 1 6 6"/>
+                    </svg>
+                    <span>Reply</span>
+                </button>
+                <button class="reply-action" data-reply-all type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m11 7-5 5 5 5M6 7l-5 5 5 5M2 12h10a7 7 0 0 1 7 7"/>
+                    </svg>
+                    <span>Reply all</span>
+                </button>
+                <button class="reply-action" data-forward type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m14 8 5 4-5 4M18 12h-7a6 6 0 0 0-6 6"/>
+                    </svg>
+                    <span>Forward</span>
+                </button>
+            </footer>
+        </div>
+    </article>
+</main>
+
+<dialog aria-labelledby="compose-title" class="compose-window" data-compose-modal>
+    <form class="compose-card" data-compose-form>
+        <header class="compose-titlebar">
+            <div class="compose-title">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m4 16-1 5 5-1L20 8l-4-4ZM14 6l4 4"/>
+                </svg>
+                <h2 data-compose-title id="compose-title">New message</h2></div>
+            <div class="compose-window-actions">
+                <button aria-expanded="true" aria-label="Minimize message" class="icon-button" data-minimize-compose
+                        title="Minimize" type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M5 17h14"/>
+                    </svg>
+                </button>
+                <button aria-label="Expand message" aria-pressed="false" class="icon-button" data-expand-compose
+                        title="Expand"
+                        type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M14 4h6v6M20 4l-6 6M10 20H4v-6M4 20l6-6"/>
+                    </svg>
+                </button>
+                <button aria-label="Close message" class="icon-button" data-close-compose title="Close" type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m6 6 12 12M18 6 6 18"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <div class="compose-content" data-compose-content>
+            <div class="compose-addresses">
+                <div class="compose-line"><span id="compose-from-label">From</span>
+                    <div class="compose-account-picker" data-compose-account-picker>
+                        <select aria-hidden="true" data-compose-account hidden name="accountId" required
+                                tabindex="-1"></select>
+                        <button aria-controls="compose-account-options" aria-expanded="false" aria-haspopup="listbox"
+                                aria-labelledby="compose-from-label compose-account-value"
+                                class="compose-account-trigger" data-compose-account-trigger
+                                role="combobox"
+                                type="button">
+                            <span data-compose-account-value id="compose-account-value"></span>
+                            <svg aria-hidden="true" class="compose-account-chevron" viewBox="0 0 24 24">
+                                <path d="m7 10 5 5 5-5"/>
+                            </svg>
+                        </button>
+                        <div aria-labelledby="compose-from-label" class="compose-account-options hidden"
+                             data-compose-account-options id="compose-account-options" role="listbox"></div>
+                    </div>
+                </div>
+                <div class="compose-recipient-line"><label class="compose-line"><span>To</span><input
+                    aria-autocomplete="list"
+                    aria-controls="contact-picker"
+                    aria-expanded="false"
+                    autocomplete="off"
+                    name="to"
+                    placeholder="Recipients"
+                    required
+                    type="text"></label>
+                    <div class="compose-recipient-options">
+                        <button aria-controls="contact-picker" aria-expanded="false"
+                                aria-label="Choose or save a contact"
+                                class="recipient-contact-button" data-pick-contact
+                                title="Choose or save a contact" type="button">
+                            <svg aria-hidden="true" viewBox="0 0 24 24">
+                                <path
+                                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 7v6M16 10h6"/>
+                            </svg>
+                        </button>
+                        <button aria-controls="compose-cc" aria-expanded="false" data-toggle-recipient="cc"
+                                type="button">Cc
+                        </button>
+                        <button aria-controls="compose-bcc" aria-expanded="false" data-toggle-recipient="bcc"
+                                type="button">Bcc
+                        </button>
+                    </div>
+                    <div class="contact-picker hidden" data-contact-picker id="contact-picker"></div>
+                </div>
+                <label class="compose-line hidden" data-recipient-row="cc" id="compose-cc"><span>Cc</span><input
+                    autocomplete="off" name="cc" placeholder="Copy recipients" type="text"></label>
+                <label class="compose-line hidden" data-recipient-row="bcc" id="compose-bcc"><span>Bcc</span><input
+                    autocomplete="off" name="bcc" placeholder="Hidden recipients" type="text"></label>
+                <label class="compose-line compose-subject"><span class="sr-only">Subject</span><input maxlength="1000"
+                                                                                                       name="subject"
+                                                                                                       placeholder="Subject"
+                                                                                                       type="text"></label>
+            </div>
+            <label class="compose-editor"><span class="sr-only">Message</span><textarea name="body"
+                                                                                        placeholder="Write your message…"
+                                                                                        required
+                                                                                        spellcheck="true"></textarea></label>
+            <div class="compose-extras">
+                <div class="compose-file-summary hidden" data-compose-file-summary></div>
+                <label class="compose-quick-response hidden"
+                       data-compose-quick-response><span>Quick response</span><select data-canned-select>
+                    <option value="">Choose a saved response…</option>
+                </select></label>
+                <p aria-live="polite" class="draft-status" data-draft-status role="status">Drafts save as you type</p>
+            </div>
+            <footer class="compose-footer">
+                <button class="button button-primary compose-send" type="submit"><span>Send</span>
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m4 4 17 8-17 8 3-8-3-8ZM7 12h14"/>
+                    </svg>
+                </button>
+                <button aria-label="Attach files" class="icon-button" data-attach-compose title="Attach files"
+                        type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m8 13 7-7a3 3 0 0 1 4 4l-9 9a5 5 0 0 1-7-7l10-10M6 15l9-9"/>
+                    </svg>
+                </button>
+                <input aria-label="Attachments" class="hidden" data-compose-files multiple name="files" type="file">
+                <button aria-expanded="false" aria-label="Quick responses" class="icon-button"
+                        data-toggle-quick-response
+                        title="Quick responses" type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M4 4h16v13H9l-5 4V4ZM8 8h8M8 12h5"/>
+                    </svg>
+                </button>
+                <span class="compose-footer-note">Ctrl + Enter to send</span>
+            </footer>
+        </div>
+    </form>
+</dialog>
+
+<dialog class="modal" data-mail-accounts-modal>
+    <section class="modal-card settings-card">
+        <header><h2>Mail accounts</h2>
+            <button aria-label="Close" class="modal-close-button" data-close-mail-accounts>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro">Connect and manage the inboxes available in Dispatch.</p>
+        <div class="managed-accounts" data-managed-accounts></div>
+        <footer>
+            <button class="button button-primary" data-open-account-create type="button">Connect mail account</button>
+        </footer>
+    </section>
+</dialog>
+
+<dialog class="modal" data-account-create-modal>
+    <form class="modal-card compact-modal-card account-form" data-account-form>
+        <header><h2>Connect mail account</h2>
+            <button aria-label="Close" class="modal-close-button" data-close-account-create type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <button class="google-connect-button" data-connect-google type="button"><span aria-hidden="true"
+                                                                                      class="google-mark">G</span><span>Continue with Google</span>
+        </button>
+        <p class="google-connect-note" data-google-connect-note>Connect Gmail securely with your Google account.</p>
+        <div class="account-connect-divider"><span>or connect with IMAP and SMTP</span></div>
+        <p class="settings-intro">Enter your mailbox connection details. Dispatch will test the connection before adding
+            it.</p>
+        <label><span class="field-label-with-help">Display name<span aria-label="Where the display name is used"
+                                                                     class="field-help"
+                                                                     tabindex="0">i<span
+            role="tooltip">Shown in Dispatch’s account selector and as the sender name on emails you send.</span></span></span><input
+            name="displayName" required></label><label>Email<input name="email" required type="email"></label>
+        <div class="compose-grid"><label>IMAP host<input name="imapHost" required></label><label>IMAP port<input
+            name="imapPort" required type="number" value="993"></label></div>
+        <div class="compose-grid"><label>SMTP host<input name="smtpHost" required></label><label>SMTP port<input
+            name="smtpPort" required type="number" value="465"></label></div>
+        <label>Username<input name="username" required></label><label>Password<input name="password" required
+                                                                                     type="password"></label>
+        <label>Signature (HTML)<textarea name="signatureHtml" rows="4"></textarea></label>
+        <footer>
+            <button class="button button-ghost" data-close-account-create type="button">Cancel</button>
+            <button class="button button-primary" type="submit">Test and connect</button>
+        </footer>
+    </form>
+</dialog>
+
+<dialog aria-labelledby="contact-editor-title" class="modal" data-contact-editor>
+    <form class="modal-card profile-card" data-contact-form>
+        <header><h2 data-contact-title id="contact-editor-title">Add contact</h2>
+            <button aria-label="Close contact editor" class="modal-close-button" data-close-contact type="button">
+                <svg viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro">Keep an address ready for your next message.</p>
+        <label>Name<input autocomplete="off" maxlength="120" name="displayName" placeholder="Contact name"
+                          required></label>
+        <label>Email<input autocomplete="off" maxlength="190" name="email" placeholder="name@example.com" required
+                           type="email"></label>
+        <p class="quick-response-error hidden" data-contact-error role="alert"></p>
+        <footer>
+            <button class="button button-ghost" data-close-contact type="button">Cancel</button>
+            <button class="button button-primary" type="submit">Save contact</button>
+        </footer>
+    </form>
+</dialog>
+
+<div aria-live="polite" class="send-feedback hidden" data-send-feedback role="status"><span class="send-feedback-icon"
+                                                                                            data-send-feedback-icon></span>
+    <div><strong data-send-feedback-title></strong>
+        <p data-send-feedback-copy></p></div>
+    <button data-view-sent type="button">View sent</button>
+    <button aria-label="Dismiss sending notification" data-close-send-feedback type="button">×</button>
+</div>
+
+<dialog class="modal" data-profile-modal>
+    <form class="modal-card profile-card" data-profile-form>
+        <header><h2>Profile settings</h2>
+            <button aria-label="Close" class="modal-close-button" data-close-profile type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro">Choose the name shown in the Dispatch header.</p>
+        <label>Display name<input autocomplete="name" maxlength="120" name="displayName" required
+                                  th:value="${adminName}"></label>
+        <label>Email<input disabled th:value="${adminEmail}" type="email"></label>
+        <footer>
+            <button class="button button-ghost" data-close-profile type="button">Cancel</button>
+            <button class="button button-primary" type="submit">Save changes</button>
+        </footer>
+    </form>
+</dialog>
+
+<dialog aria-labelledby="quick-responses-title" class="modal" data-quick-responses-modal>
+    <section class="modal-card quick-responses-card">
+        <header>
+            <div class="quick-responses-heading"><h2 id="quick-responses-title">Quick responses</h2></div>
+            <button aria-label="Close" class="modal-close-button" data-close-quick-responses type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro">Your saved replies, ready for the next conversation.</p>
+        <div class="quick-responses-toolbar">
+            <label class="quick-response-search">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="10.5" cy="10.5" r="6.5"/>
+                    <path d="m16 16 4.5 4.5"/>
+                </svg>
+                <input aria-label="Search quick responses" autocomplete="off" data-canned-search
+                       placeholder="Search responses" type="search"></label>
+            <button class="button button-primary" data-open-canned-create type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                New response
+            </button>
+        </div>
+        <p class="quick-response-notice hidden" data-canned-notice role="status"></p>
+        <div aria-busy="false" aria-label="Saved quick responses" class="quick-response-list" data-canned-list></div>
+    </section>
+</dialog>
+
+<dialog aria-labelledby="canned-editor-title" class="modal" data-canned-editor-modal>
+    <form class="modal-card quick-response-editor" data-canned-form>
+        <header>
+            <div class="quick-responses-heading">
+                <button aria-label="Back to quick responses" class="modal-close-button quick-response-back"
+                        data-close-canned-editor
+                        type="button">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="m12 5-7 7 7 7M5 12h14"/>
+                    </svg>
+                </button>
+                <h2 data-canned-editor-title id="canned-editor-title">New response</h2></div>
+            <button aria-label="Close response editor" class="modal-close-button" data-close-canned-editor
+                    type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro">Write it once. Reuse it whenever you reply.</p>
+        <div class="quick-response-editor-layout">
+            <div class="quick-response-fields">
+                <label for="canned-title">Title<span
+                    class="quick-response-field-hint">A name you can find quickly.</span></label>
+                <input autocomplete="off" id="canned-title" maxlength="120" name="title"
+                       placeholder="e.g. Thanks for reaching out" required>
+                <label for="canned-body">Response</label>
+                <textarea id="canned-body" maxlength="100000" name="bodyHtml"
+                          placeholder="Hi there,&#10;&#10;Thanks for getting in touch…" required rows="8"></textarea>
+                <span class="quick-response-character-count" data-canned-character-count>0 characters</span>
+            </div>
+            <aside aria-label="Response preview" class="quick-response-preview">
+                <div class="quick-response-preview-label">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/>
+                    </svg>
+                    Reply preview
+                </div>
+                <h3 data-canned-preview-title>Untitled response</h3>
+                <p class="is-placeholder" data-canned-preview-body>Your response will appear here as you write.</p>
+            </aside>
+        </div>
+        <p class="quick-response-error hidden" data-canned-error role="alert"></p>
+        <footer class="quick-response-editor-footer">
+            <button class="button button-ghost" data-close-canned-editor type="button">Cancel</button>
+            <button class="button button-primary" data-canned-save type="submit">Save response</button>
+        </footer>
+    </form>
+</dialog>
+
+<dialog aria-labelledby="security-activity-title" class="modal" data-security-activity-modal>
+    <section class="modal-card security-activity-card">
+        <header><h2 id="security-activity-title">Sign-in activity</h2>
+            <button aria-label="Close" class="modal-close-button" data-close-security-activity type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p class="settings-intro">Your active sessions and sign-in history. Times are shown in your local time zone.</p>
+        <div aria-label="Sign-in activity" class="security-tabs" role="tablist">
+            <button aria-controls="sessions-panel" aria-selected="true" data-security-tab="sessions" id="sessions-tab"
+                    role="tab"
+                    type="button">Active sessions
+            </button>
+            <button aria-controls="history-panel" aria-selected="false" data-security-tab="history" id="history-tab"
+                    role="tab"
+                    tabindex="-1" type="button">Sign-in history
+            </button>
+        </div>
+        <p data-security-activity-status role="status"></p>
+        <section aria-labelledby="sessions-tab" data-security-panel="sessions" id="sessions-panel" role="tabpanel">
+            <div class="security-session-list" data-security-sessions></div>
+        </section>
+        <section aria-labelledby="history-tab" data-security-panel="history" hidden id="history-panel" role="tabpanel">
+            <div class="security-event-list" data-security-events></div>
+            <div class="security-activity-pagination">
+                <button class="button button-ghost" data-security-prev type="button">Previous</button>
+                <span data-security-page></span>
+                <button class="button button-ghost" data-security-next type="button">Next</button>
+            </div>
+        </section>
+
+    </section>
+</dialog>
+
+<dialog aria-labelledby="attachment-preview-title" class="modal" data-attachment-preview-modal>
+    <section class="modal-card attachment-preview-card">
+        <header><h2 data-attachment-preview-title id="attachment-preview-title">Attachment preview</h2>
+            <form method="dialog">
+                <button aria-label="Close preview" class="modal-close-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="m6 6 12 12M18 6 6 18"/>
+                    </svg>
+                </button>
+            </form>
+        </header>
+        <div aria-live="polite" data-attachment-preview-content></div>
+    </section>
+</dialog>
+
+<dialog class="modal" data-confirm-modal>
+    <form class="modal-card confirm-card" data-confirm-form method="dialog">
+        <header><h2 data-confirm-title>Confirm action</h2>
+            <button aria-label="Close" class="modal-close-button" value="cancel">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <p data-confirm-message></p>
+        <footer>
+            <button class="button button-ghost" value="cancel">Cancel</button>
+            <button class="button button-danger" data-confirm-submit value="confirm">Confirm</button>
+        </footer>
+    </form>
+</dialog>
+
+
+<dialog aria-labelledby="sharing-title" class="modal" data-sharing-modal>
+    <div class="modal-card sharing-card">
+        <header class="sharing-heading">
+            <h2 id="sharing-title">Mailbox sharing</h2>
+            <button aria-label="Close sharing" class="modal-close-button" data-close-sharing type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <div class="sharing-navigation">
+            <div aria-label="Sharing direction" class="security-tabs" role="tablist">
+                <button aria-controls="sharing-outgoing-panel" aria-selected="true" data-sharing-tab="outgoing"
+                        id="sharing-outgoing-tab"
+                        role="tab" type="button">Shared by me
+                </button>
+                <button aria-controls="sharing-incoming-panel" aria-selected="false" data-sharing-tab="incoming"
+                        id="sharing-incoming-tab"
+                        role="tab" tabindex="-1" type="button">Shared with me
+                </button>
+            </div>
+            <button class="button button-primary sharing-add" data-add-share type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Share mailboxes
+            </button>
+        </div>
+        <p class="quick-response-error hidden" data-sharing-error role="alert"></p>
+        <section aria-labelledby="sharing-outgoing-tab" data-sharing-panel="outgoing" id="sharing-outgoing-panel"
+                 role="tabpanel">
+            <div class="sharing-context hidden" data-sharing-context></div>
+            <div data-sharing-outgoing></div>
+        </section>
+        <section aria-labelledby="sharing-incoming-tab" data-sharing-panel="incoming" hidden
+                 id="sharing-incoming-panel" role="tabpanel">
+            <div data-sharing-incoming></div>
+        </section>
+    </div>
+</dialog>
+<dialog aria-labelledby="share-editor-title" class="modal" data-sharing-editor>
+    <form class="modal-card sharing-editor" data-sharing-form>
+        <header><h2 id="share-editor-title">Share mailboxes</h2>
+            <button aria-label="Close editor" class="modal-close-button" data-close-share-editor type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <label>Email<input autocomplete="off" maxlength="190" name="email" placeholder="person@example.com" required
+                           type="email"></label>
+        <fieldset class="sharing-permissions">
+            <legend>Permissions</legend>
+            <label><input checked name="canView" type="checkbox"><span><strong>View mail</strong></span></label>
+            <label><input name="canSend" type="checkbox"><span><strong>Send and reply</strong></span></label>
+            <label><input name="canOrganize"
+                          type="checkbox"><span><strong>Mark as read, star and pin</strong></span></label>
+            <label><input name="canDelete" type="checkbox"><span><strong>Move mail to Trash</strong></span></label>
+        </fieldset>
+        <p class="quick-response-error hidden" data-sharing-editor-error role="alert"></p>
+        <footer>
+            <button class="button button-ghost" data-close-share-editor type="button">Cancel</button>
+            <button class="button button-primary" type="submit">Next</button>
+        </footer>
+    </form>
+</dialog>
+
+<dialog aria-labelledby="share-accounts-title" class="modal" data-sharing-accounts-modal>
+    <form class="modal-card sharing-editor" data-sharing-accounts-form>
+        <header><h2 id="share-accounts-title">Select mailboxes</h2>
+            <button aria-label="Close mailbox selection" class="modal-close-button" data-close-share-accounts
+                    type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 6 12 12M18 6 6 18"/>
+                </svg>
+            </button>
+        </header>
+        <div class="sharing-account-choices" data-sharing-account-choices></div>
+        <p class="quick-response-error hidden" data-sharing-accounts-error role="alert"></p>
+        <footer>
+            <button class="button button-ghost" data-share-back type="button">Back</button>
+            <button class="button button-primary" data-share-save type="submit">Save access</button>
+        </footer>
+    </form>
+</dialog>
+
+<div class="account-popover hidden" data-account-popover popover="manual" role="menu">
+    <button data-open-profile role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0"/>
+        </svg>
+        <span>Profile settings</span>
+    </button>
+    <button data-open-security-activity role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7l8-4ZM12 8v5l3 2"/>
+        </svg>
+        <span>Sign-in activity</span>
+    </button>
+    <button data-open-mail-accounts role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M4 6.5h16v11H4zM4.5 7l7.5 6 7.5-6"/>
+        </svg>
+        <span>Mail accounts</span>
+    </button>
+    <button data-open-mail-sharing role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path
+                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 5a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.9"/>
+        </svg>
+        <span>Mailbox sharing</span>
+    </button>
+    <a class="account-popover-link" href="/admin/status" role="menuitem" th:if="${isAdministrator}">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M3 4h18v16H3zM3 9h18M8 9v11"/>
+        </svg>
+        <span>Admin panel</span></a>
+    <div class="account-popover-separator" role="separator"></div>
+    <button data-logout role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/>
+        </svg>
+        <span>Sign out on this device</span>
+    </button>
+    <button class="danger-menu-item" data-logout-all role="menuitem" type="button">
+        <svg aria-hidden="true" class="menu-item-icon" viewBox="0 0 24 24">
+            <path d="M12 3v8M7.8 5.5a8 8 0 1 0 8.4 0"/>
+        </svg>
+        <span>Sign out everywhere</span>
+    </button>
+</div>
+</body>
+</html>

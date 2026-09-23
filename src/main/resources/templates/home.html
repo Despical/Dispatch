@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('A clear space for every inbox')}"></head>
+<body class="public-page" data-page="home">
+<header th:replace="~{fragments/public :: header}"></header>
+<main id="main-content">
+    <section aria-labelledby="home-title" class="home-hero">
+        <div class="public-container home-hero-layout">
+            <div class="home-hero-copy">
+                <h1 id="home-title">A clear space.<br> For <span>every inbox.</span></h1>
+                <p class="home-hero-description">Your accounts, brought together. Read, reply, and organize your email
+                    in one focused workspace, with the providers you already use.</p>
+                <div class="home-hero-actions">
+                    <a class="public-button public-button-primary" th:href="@{/login}">Open your workspace</a>
+                </div>
+                <p class="home-access-note">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <rect height="10" rx="2" width="12" x="6" y="10"/>
+                        <path d="M9 10V7a3 3 0 0 1 6 0v3"/>
+                    </svg>
+                    A personal workspace for your email accounts.
+                </p>
+            </div>
+            <figure class="home-product-figure">
+                <button aria-label="Zoom Dispatch workspace preview" class="home-product-stage" data-preview-open
+                        type="button">
+                    <img
+                        alt="Dispatch mail workspace showing account navigation, a selected message, and a reply draft."
+                        class="home-product-image"
+                        fetchpriority="high" height="955" src="/images/dispatch-live.png"
+                        th:src="@{/images/dispatch-live.png}"
+                        width="1920">
+                </button>
+                <figcaption class="home-preview-hint">Click the image to enlarge.</figcaption>
+            </figure>
+        </div>
+        <dialog aria-label="Dispatch workspace preview" class="home-preview-dialog" data-preview-dialog>
+            <button aria-label="Close preview" class="home-preview-close" data-preview-close type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></svg></button>
+            <span class="home-preview-viewport"><img alt="Enlarged Dispatch mail workspace preview." height="955"
+                                                      src="/images/dispatch-live.png" th:src="@{/images/dispatch-live.png}" width="1920"></span>
+        </dialog>
+        <div aria-label="Workspace capabilities" class="public-container home-capabilities">
+            <span><svg aria-hidden="true" viewBox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="4"/><path
+                d="M3 9h18m-8 4-2 2 2 2m4-4 2 2-2 2"/></svg> Protected message viewing</span>
+            <span><svg aria-hidden="true" viewBox="0 0 24 24"><rect height="12" rx="2" width="13" x="3" y="4"/><path
+                d="M8 16v4h13V9h-5M3 7l6.5 4L16 7"/></svg> Multiple accounts</span>
+            <span><svg aria-hidden="true" viewBox="0 0 24 24"><path
+                d="M5 4h14l3 11v5H2v-5L5 4Zm-3 11h6l2 3h4l2-3h6"/></svg> One unified inbox</span>
+            <span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7l8-4Z"/><path
+                d="m8 12 3 3 5-6"/></svg> Two-factor sign-in</span>
+        </div>
+    </section>
+
+    <section aria-labelledby="features-title" class="home-features home-section" id="features">
+        <div class="public-container">
+            <div class="home-section-heading" data-reveal>
+                <div><h2 id="features-title">Keep the conversation.<br> <span>Lose the back-and-forth.</span></h2></div>
+                <p>From the first read to the final reply, keep your everyday email in one place.</p>
+            </div>
+            <div class="home-feature-grid">
+                <article class="home-feature-card home-feature-connect" data-reveal>
+                    <div class="home-feature-copy"><h3>Different inboxes.<br> Same place.</h3>
+                        <p>Bring your connected mailboxes into one view, or focus on a single account. Your existing
+                            email provider stays part of the picture.</p></div>
+                    <div aria-hidden="true" class="home-account-diagram">
+                        <div class="home-account-sources">
+                            <span><i>W</i>Work</span><span><i>P</i>Personal</span><span><i>S</i>Studio</span></div>
+                        <div class="home-account-paths"><span></span><span></span><span></span></div>
+                        <div class="home-account-hub"><img alt="" height="42" src="/favicon.svg"
+                                                           th:src="@{/favicon.svg}"
+                                                           width="42"><span>One workspace</span></div>
+                    </div>
+                </article>
+                <article class="home-feature-card home-feature-organize" data-reveal>
+                    <div class="home-feature-copy"><h3>Good things<br> stay in sight.</h3>
+                        <p>Pin conversations, star messages and contacts, and put your mailboxes in the order that works
+                            for you.</p></div>
+                    <div aria-hidden="true" class="home-organize-demo">
+                        <div class="home-demo-row"><span class="home-demo-icon"><svg viewBox="0 0 24 24"><path
+                            d="m15 3 6 6-5 1-3 5-4-4 5-3 1-5Zm-6 8-5 9"/></svg></span>
+                            <div><strong>Pinned conversations</strong><span>Keep priorities at the top</span></div>
+                        </div>
+                        <div class="home-demo-row"><span class="home-demo-icon home-demo-star"><svg viewBox="0 0 24 24"><path
+                            d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg></span>
+                            <div><strong>Starred messages</strong><span>Ready when you come back</span></div>
+                        </div>
+                    </div>
+                </article>
+                <article class="home-feature-card home-feature-reply" data-reveal>
+                    <div class="home-feature-copy"><h3>The right account.<br> The words you need.</h3>
+                        <p>Find saved contacts as you type, reuse a quick response, and pick up a saved draft. Follow
+                            outgoing messages from queued to sent in the Sent view.</p></div>
+                    <div aria-hidden="true" class="home-compose-demo">
+                        <div class="home-compose-top"><span><svg viewBox="0 0 24 24"><path
+                            d="m9 5-7 6 7 6v-4c6 0 9 1 12 5-1-8-6-10-12-10V5Z"/></svg> A more considered reply</span>
+                        </div>
+                        <div class="home-compose-from"><span>From</span><strong>The account that received the
+                            email</strong></div>
+                        <div class="home-compose-body"><span class="home-compose-line"></span><span
+                            class="home-compose-line"></span><span class="home-compose-line"></span></div>
+                        <div class="home-compose-bottom"><span>Quick responses <svg viewBox="0 0 24 24"><path
+                            d="m8 5 7 7-7 7"/></svg></span><span><svg viewBox="0 0 24 24"><path
+                            d="m5 12 4 4L19 6"/></svg> Saved drafts</span></div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="security-title" class="home-security home-section" id="security">
+        <div class="public-container home-security-layout">
+            <div class="home-security-intro" data-reveal>
+
+                <h2 id="security-title">Your attention<br> belongs on <span>your email.</span></h2>
+                <p>Clear safeguards for signing in, opening messages, and handling attachments.</p>
+                <a class="home-explore-link home-security-link" th:href="@{/security}">
+                    <span aria-hidden="true" class="home-security-link-icon"><svg viewBox="0 0 24 24"><path
+                        d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7l8-4Z"/><path d="m8 12 3 3 5-6"/></svg></span>
+                    <span>Take a look at our security</span>
+                    <svg aria-hidden="true" class="home-link-arrow" viewBox="0 0 24 24">
+                        <path d="M4 12h15m-6-6 6 6-6 6"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="home-security-items">
+                <article class="home-security-item" data-reveal>
+                    <div><h3>A second step at sign-in.</h3>
+                        <p>A password and a code from your authenticator app protect access to the workspace.</p></div>
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <rect height="11" rx="2" width="14" x="5" y="10"/>
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/>
+                    </svg>
+                </article>
+                <article class="home-security-item" data-reveal>
+                    <div><h3>Open a message. Keep control.</h3>
+                        <p>Email HTML is sanitized and isolated. Remote images stay blocked until you choose to load
+                            them.</p></div>
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <rect height="16" rx="2" width="18" x="3" y="4"/>
+                        <path d="M3 9h18m-8 4-2 2 2 2m4-4 2 2-2 2"/>
+                    </svg>
+                </article>
+                <article class="home-security-item" data-reveal>
+                    <div><h3>Files get a check first.</h3>
+                        <p>Attachment access stays blocked until the configured scanner reports no threat detected.
+                            Scanning reduces risk; it cannot catch every harmful file.</p></div>
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M14 3H5v18h14V8l-5-5Zm0 0v5h5m-11 6 3 3 5-6"/>
+                    </svg>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="questions-title" class="home-questions home-section">
+        <div class="public-container home-questions-layout">
+            <div data-reveal><h2 id="questions-title">Before you<br> settle in.</h2>
+                <p>A few things to know about Dispatch.</p><a class="home-explore-link" th:href="@{/contact}">Have
+                    another question?</a></div>
+            <div class="home-faq-list" data-reveal>
+                <details class="home-faq">
+                    <summary>Does Dispatch replace my email provider?<span aria-hidden="true"></span></summary>
+                    <p>No. Dispatch connects to your existing mail accounts so you can read and send email from one
+                        workspace. Your provider still hosts your mailbox.</p></details>
+                <details class="home-faq">
+                    <summary>Which accounts can I connect?<span aria-hidden="true"></span></summary>
+                    <p>Gmail connects through Google authorization when the workspace administrator has configured it.
+                        Other accounts can connect through IMAP and SMTP over TLS; some providers require an app
+                        password.</p></details>
+                <details class="home-faq">
+                    <summary>Can I share selected mailboxes?<span aria-hidden="true"></span></summary>
+                    <p>Yes. Choose a person with a Dispatch account, set their permissions, and select the mailboxes to
+                        share. Viewing, sending, organizing, and moving mail to Trash are separate permissions. You can
+                        change or remove access later.</p></details>
+                <details class="home-faq">
+                    <summary>What happens when I disconnect a mailbox?<span aria-hidden="true"></span></summary>
+                    <p>Disconnecting removes the local connection and its stored credential. It does not delete your
+                        account or messages at your email provider.</p></details>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="contact-title" class="home-contact" id="contact">
+        <div class="public-container home-contact-panel" data-reveal>
+            <div aria-hidden="true" class="home-contact-orbit"></div>
+            <div><h2 id="contact-title">A little space.<br> <span>A clearer inbox.</span></h2>
+                <p>Bring your attention back to the messages that matter.</p></div>
+            <div class="home-contact-actions"><a class="public-button public-button-primary" th:href="@{/login}">Sign in
+                to Dispatch</a><span>Questions or feedback? <a th:href="@{/contact}">Let’s talk</a></span></div>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments/public :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,15 @@
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+        same-site: Strict
+
+spring:
+  thymeleaf:
+    cache: true
+
+dispatch:
+  security:
+    cookie-secure: true
+    cookie-same-site: Strict

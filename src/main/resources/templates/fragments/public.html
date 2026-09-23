@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="public-header" th:fragment="header">
+    <a class="public-skip-link" href="#main-content">Skip to content</a>
+    <div class="public-container public-header-inner">
+        <a aria-label="Dispatch home" class="public-brand" th:href="@{/}">
+            <img alt="" height="34" src="/favicon.svg" th:src="@{/favicon.svg}" width="34">
+            <span>Dispatch<span class="public-brand-dot">.</span></span>
+        </a>
+        <nav aria-label="Main navigation" class="public-navigation">
+            <a th:href="@{/features}">Features</a>
+            <a th:href="@{/security}">Security</a>
+            <a th:href="@{/contact}">Contact</a>
+        </nav>
+        <a class="public-header-signin" th:classappend="${publicSignedIn or publicAuthPending} ? ' hidden'"
+           th:href="@{/login}">
+            Sign in
+        </a>
+        <a aria-label="Open your workspace" class="public-header-profile" data-public-profile
+           href="/mail" th:classappend="${!publicSignedIn} ? ' hidden'">
+            <span class="avatar-button" data-public-initials th:text="${publicInitials}"></span>
+            <span class="user-menu-copy"><strong data-public-name th:text="${publicName}"></strong><small
+                data-public-role th:text="${publicRoleLabel}"></small></span>
+        </a>
+        <details class="public-mobile-menu">
+            <summary aria-label="Navigation menu">
+                <span></span><span></span>
+            </summary>
+            <nav aria-label="Mobile navigation">
+                <a th:href="@{/features}">Features</a>
+                <a th:href="@{/security}">Security</a>
+                <a th:href="@{/contact}">Contact</a>
+            </nav>
+        </details>
+    </div>
+</header>
+<footer class="public-footer" th:fragment="footer">
+    <div class="public-container">
+        <div class="public-footer-main">
+            <div class="public-footer-about">
+                <a aria-label="Dispatch home" class="public-brand" th:href="@{/}">
+                    <img alt="" height="32" src="/favicon.svg" th:src="@{/favicon.svg}" width="32">
+                    <span>Dispatch<span class="public-brand-dot">.</span></span>
+                </a>
+                <p>Read, reply, and organize email<br> across your connected accounts.</p>
+            </div>
+            <nav aria-label="Product links" class="public-footer-column">
+                <h2>Product</h2>
+                <a th:href="@{/features}">Features</a>
+                <a th:href="@{/security}">Security</a>
+                <a th:href="@{/login}">Sign in</a>
+            </nav>
+            <nav aria-label="Information links" class="public-footer-column">
+                <h2>Information</h2>
+                <a th:href="@{/contact}">Contact</a>
+                <a th:href="@{/privacy-policy}">Privacy Policy</a>
+                <a th:href="@{/terms-of-service}">Terms of Service</a>
+            </nav>
+        </div>
+        <div class="public-footer-bottom">
+            <span>© <span th:text="${#temporals.year(#temporals.createNow())}">2026</span> Dispatch. All rights reserved.</span>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

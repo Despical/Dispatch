@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Terms of service')}"></head>
+<body class="public-page" data-page="public">
+<header th:replace="~{fragments/public :: header}"></header>
+<main id="main-content">
+    <div class="legal-hero public-container">
+        <h1>Terms of service</h1>
+        <p>Conditions for accessing your account and using the Dispatch service.</p>
+        <div class="legal-meta">Last updated
+            <time datetime="2026-09-22">September 22, 2026</time>
+        </div>
+    </div>
+    <div class="legal-layout public-container">
+        <aside aria-label="On this page" class="legal-nav">
+            <span>On this page</span>
+            <nav aria-label="Terms of service sections">
+                <a href="#service">About the service</a>
+                <a href="#account">Your account</a>
+                <a href="#acceptable-use">Acceptable use</a>
+                <a href="#content">Your mail &amp; content</a>
+                <a href="#availability">Service availability</a>
+                <a href="#access">Ending access</a>
+                <a href="#updates">Updates &amp; your rights</a>
+                <a href="#contact">Contact us</a>
+            </nav>
+        </aside>
+        <article class="legal-content">
+            <section class="legal-section" id="service">
+                <h2>01. About the service</h2>
+                <p>Dispatch is a webmail application. These terms describe the conditions for using this site and the
+                    Dispatch service. By using the service, you agree to these terms and should read our <a
+                        href="/privacy-policy">Privacy policy</a>.</p>
+                <p>Dispatch connects to existing email accounts. It does not create or operate your email provider's
+                    mailbox. Provider terms, limits, and availability continue to apply to connected accounts.</p>
+            </section>
+            <section class="legal-section" id="account">
+                <h2>02. Your account and access</h2>
+                <p>Administrators create accounts with either the User or Admin role. Mailbox owners choose which
+                    accounts to share and the actions recipients may take. Review these permissions before granting
+                    access and remove access when it is no longer needed.</p>
+                <p>Access is provided to authorized users; there is no public self-service registration. Only connect
+                    mailboxes you own or have permission to manage. Keep your password, authenticator, and recovery
+                    codes secure, and do not share your Dispatch sign-in.</p>
+                <p>You are responsible for checking the accounts and recipients you select and the actions you take in
+                    the service. Contact us promptly if you suspect unauthorized access. On a shared device, sign out
+                    when you finish.</p>
+            </section>
+            <section class="legal-section" id="acceptable-use">
+                <h2>03. Acceptable use</h2>
+                <p>Use Dispatch lawfully and respect the privacy and rights of others. You must not use the service
+                    to:</p>
+                <ul>
+                    <li>Access accounts, messages, or systems without authorization.</li>
+                    <li>Send phishing messages, unsolicited bulk email, malware, or fraudulent communications.</li>
+                    <li>Distribute content that is unlawful or infringes another person's rights.</li>
+                    <li>Bypass security controls, interfere with the service, or deliberately overload its
+                        infrastructure.
+                    </li>
+                </ul>
+                <p>If you discover a security issue, report it privately using the contact details below and avoid
+                    accessing or altering other people's data.</p>
+            </section>
+            <section class="legal-section" id="content">
+                <h2>04. Your mail and content</h2>
+                <p>You retain your rights in the content you provide. You authorize the processing needed to
+                    synchronize, store, display, organize, and send that content according to your actions and settings.
+                    You must have the right to use and send it.</p>
+                <p>Review recipients and attachments before sending. Email that has already been transmitted may not be
+                    recoverable. If a send result is uncertain, check the provider's Sent folder before retrying to
+                    avoid duplicate delivery.</p>
+                <p>Security features reduce risk but cannot guarantee that every message, link, or attachment is safe.
+                    Keep independent copies of information you need to preserve.</p>
+            </section>
+            <section class="legal-section" id="availability">
+                <h2>05. Service availability</h2>
+                <p>Dispatch depends on its hosting infrastructure, your network, and connected email providers.
+                    Maintenance, provider restrictions, outages, or security incidents may interrupt access,
+                    synchronization, or delivery. We do not promise uninterrupted service or delivery at a particular
+                    time.</p>
+                <p>Features may change as the application develops. If an important mailbox action fails, check its
+                    status before repeating it and contact us if you need help.</p>
+            </section>
+            <section class="legal-section" id="access">
+                <h2>06. Ending or restricting access</h2>
+                <p>You can stop using Dispatch, sign out, or remove a connected mailbox. Removing a connection does not
+                    close the provider account or automatically erase previously stored Dispatch data. See the <a
+                        href="/privacy-policy#retention">storage and deletion information</a> for details.</p>
+                <p>Access may be restricted when necessary to address unauthorized use, a breach of these terms, or a
+                    security risk. Contact us if you believe access has been restricted in error or if you need help
+                    retrieving information.</p>
+            </section>
+            <section class="legal-section" id="updates">
+                <h2>07. Updates and your rights</h2>
+                <p>We may revise these terms to reflect changes to the service. The last-updated date identifies the
+                    current version. Contact us if you have questions about a change before continuing to use the
+                    service.</p>
+                <p>Nothing in these terms removes rights or remedies that cannot be excluded under applicable law. These
+                    terms do not establish a paid subscription, a service-level commitment, or a separate agreement with
+                    your email provider.</p>
+            </section>
+            <section class="legal-section" id="contact">
+                <h2>08. Get in touch</h2>
+                <div class="legal-callout">
+                    <h3>Questions, feedback, or a security concern?</h3>
+                    <p>Email Despical at <a href="mailto:contact@despical.dev">contact@despical.dev</a>. Include enough
+                        detail to help us understand your request, but never send passwords or authentication codes.</p>
+                </div>
+                <p>For information about personal data, read our <a href="/privacy-policy">Privacy policy</a>.</p>
+            </section>
+        </article>
+    </div>
+</main>
+<footer th:replace="~{fragments/public :: footer}"></footer>
+</body>
+</html>
