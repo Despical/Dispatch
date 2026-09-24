@@ -18,8 +18,8 @@
                th:href="@{/login}">Sign in</a>
             <a aria-label="Open your workspace" class="public-header-profile" data-public-profile
                href="/mail" th:classappend="${!publicSignedIn} ? ' hidden'">
-                <span class="avatar-button" data-public-initials th:text="${publicInitials}"></span>
-                <span class="user-menu-copy"><strong data-public-name th:text="${publicName}"></strong><small
+                <span class="avatar-button" data-no-translate data-public-initials th:text="${publicInitials}"></span>
+                <span class="user-menu-copy"><strong data-no-translate data-public-name th:text="${publicName}"></strong><small
                     data-public-role th:text="${publicRoleLabel}"></small></span>
             </a>
         </div>

@@ -20,4 +20,9 @@ describe('mail locations',()=>{
     expect(route).toMatchObject({view:'trash',accountId:7,filter:'drafts',page:1});
     expect(mailLocationUrl(route)).toBe(url);
   });
+  it('preserves the selected account for drafts',()=>{
+    const url='/mail/drafts?account=7';
+    expect(readMailLocation(new URL(url,'http://localhost')).accountId).toBe(7);
+    expect(mailLocationUrl(readMailLocation(new URL(url,'http://localhost')))).toBe(url);
+  });
 });

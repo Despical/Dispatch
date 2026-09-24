@@ -16,8 +16,9 @@ describe('browser failure state', () => {
   });
 
   it('keeps remote images and normal HTML rendering as explicit message-view options', () => {
-    expect(messageContentUrl(42)).toBe('/api/mail/messages/42/content?externalImages=false&original=false');
-    expect(messageContentUrl(42, true, true)).toBe('/api/mail/messages/42/content?externalImages=true&original=true');
+    expect(messageContentUrl(42)).toBe('/api/mail/messages/42/content?externalImages=false&original=false&light=false');
+    expect(messageContentUrl(42, true, true)).toBe('/api/mail/messages/42/content?externalImages=true&original=true&light=false');
+    expect(messageContentUrl(42, false, false, true)).toBe('/api/mail/messages/42/content?externalImages=false&original=false&light=true');
   });
 
   it('only accepts web and email destinations for guarded message links', () => {

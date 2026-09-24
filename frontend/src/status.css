@@ -91,7 +91,14 @@
 .admin-nav-link { text-decoration: none; }
 .admin-status-heading h1 { display: inline-flex; align-items: center; gap: .65rem; }
 .admin-status-info { position: relative; display: inline-grid; place-items: center; width: 1.1rem; height: 1.1rem; border: 1px solid var(--muted-2); border-radius: 50%; color: var(--muted); font-size: .7rem; font-style: normal; font-weight: 600; line-height: 1; cursor: default; }
-.admin-status-info-tooltip { position: absolute; z-index: 5; top: calc(100% + .7rem); left: 50%; width: max-content; max-width: min(23rem, 80vw); padding: .55rem .7rem; border: 1px solid var(--line); border-radius: .45rem; background: var(--panel-2); box-shadow: 0 12px 30px #0007; color: var(--text); font-size: var(--font-small); font-weight: var(--weight-normal); line-height: 1.4; opacity: 0; pointer-events: none; transform: translate(-50%, -.25rem); transition: opacity .16s, transform .16s; white-space: normal; }
+.admin-status-info-tooltip { position: absolute; z-index: 5; top: calc(100% + .7rem); left: 50%; width: max-content; max-width: min(23rem, 80vw); padding: .7rem .85rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--panel); box-shadow: 0 12px 30px #0007; color: var(--text); font-family: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif; font-size: .8125rem; font-weight: 450; letter-spacing: normal; line-height: 1.55; text-align: left; opacity: 0; pointer-events: none; transform: translate(-50%, -.25rem); transition: opacity .16s, transform .16s; white-space: normal; }
+.admin-status-reasons { display: grid; padding: .2rem 1.1rem; }
+.admin-status-reason { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: .9rem 0; }
+.admin-status-reason + .admin-status-reason { border-top: 1px solid var(--line-soft); }
+.admin-status-reason-copy { min-width: 0; }
+.admin-status-reason-copy strong { display: block; color: var(--text); font-size: .875rem; font-weight: var(--weight-semibold); }
+.admin-status-reason-copy p { margin: .25rem 0 0; color: var(--muted); font-size: var(--font-small); line-height: 1.5; }
+.admin-status-reason-state { flex: none; color: var(--warning); font-size: var(--font-small); text-transform: capitalize; }
 .admin-status-info:hover .admin-status-info-tooltip,.admin-status-info:focus-visible .admin-status-info-tooltip { opacity: 1; transform: translate(-50%, 0); }
 .admin-status-content { width: 100%; min-width: 0; height: 100%; overflow-y: auto; margin: 0; padding: 2rem clamp(1.25rem, 3vw, 3rem) 4rem; }
 .admin-status-heading { align-items: center; border-color: var(--line); }

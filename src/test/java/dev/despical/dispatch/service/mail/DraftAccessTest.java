@@ -87,6 +87,21 @@ class DraftAccessTest {
     }
 
     @Test
+    void listAndCountCanBeScopedToOneOwnedAccount() {
+        when(outbox.findDraftsForAccount(
+            eq(42L), eq(5L), eq(OutboundMessage.Status.DRAFT), eq("hello"), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of()));
+        when(outbox.countByCreatedByIdAndAccountIdAndStatusAndTrashedAtIsNull(
+            42L, 5L, OutboundMessage.Status.DRAFT)).thenReturn(2L);
+
+        assertThat(service.drafts(42L, 5L, 0, " hello ").getContent()).isEmpty();
+        assertThat(service.draftCount(42L, 5L)).isEqualTo(2);
+        verify(outbox).findDraftsForAccount(
+            eq(42L), eq(5L), eq(OutboundMessage.Status.DRAFT), eq("hello"), any(Pageable.class));
+        verify(outbox, never()).findDrafts(eq(42L), any(), any(), any());
+    }
+
+    @Test
     void foreignOrNonDraftMessagesCannotBeReopenedOrOverwritten() {
         UUID id = UUID.randomUUID();
         when(outbox.findByPublicIdAndCreatedById(id, 42L)).thenReturn(Optional.empty());

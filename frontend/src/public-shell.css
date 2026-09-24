@@ -246,7 +246,7 @@
     .public-footer-main { gap: 32px; }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
     .public-header-inner {
         grid-template-columns: minmax(0, 1fr) auto auto;
         gap: 12px;
@@ -261,7 +261,7 @@
     .public-header-profile .user-menu-copy { display: none; }
     .public-header-signin svg { width: 14px; height: 14px; }
     .public-mobile-menu { display: block; }
-    .public-mobile-menu summary {
+    .public-mobile-menu > summary {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -277,9 +277,9 @@
         cursor: pointer;
     }
 
-    .public-mobile-menu summary::-webkit-details-marker { display: none; }
-    .public-mobile-menu summary:focus-visible { outline: 2px solid #b7a0ec; outline-offset: 4px; }
-    .public-mobile-menu summary > span {
+    .public-mobile-menu > summary::-webkit-details-marker { display: none; }
+    .public-mobile-menu > summary:focus-visible { outline: 2px solid #b7a0ec; outline-offset: 4px; }
+    .public-mobile-menu > summary > span {
         display: block;
         width: 16px;
         height: 1px;
@@ -287,8 +287,8 @@
         transition: transform .2s ease;
     }
 
-    .public-mobile-menu[open] summary > span:first-child { transform: translateY(3px) rotate(45deg); }
-    .public-mobile-menu[open] summary > span:last-child { transform: translateY(-3px) rotate(-45deg); }
+    .public-mobile-menu[open] > summary > span:first-child { transform: translateY(3px) rotate(45deg); }
+    .public-mobile-menu[open] > summary > span:last-child { transform: translateY(-3px) rotate(-45deg); }
     .public-mobile-menu nav {
         position: absolute;
         top: calc(100% - 1px);

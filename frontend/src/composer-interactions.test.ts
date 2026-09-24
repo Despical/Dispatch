@@ -46,7 +46,7 @@ async function defaultResponse(path: string): Promise<unknown> {
   if (path === '/api/mail/contacts') return [];
   if (path.startsWith('/api/mail/trash/count')) return { count: 0 };
   if (path.startsWith('/api/mail/trash?')) return { content: [], page: 0, totalPages: 0, totalElements: 0 };
-  if (path === '/api/mail/outbound/drafts/count') return { count: 0 };
+  if (path.startsWith('/api/mail/outbound/drafts/count?')) return { count: 0 };
   if (path === '/api/system/storage') return { usedBytes: 0, totalBytes: 100, usedPercent: 0 };
   if (path === '/api/mail/accounts') return structuredClone(accounts);
   if (path.startsWith('/api/mail/folders?')) return [];
@@ -96,6 +96,25 @@ describe('mail interactions with the real mail template', () => {
     element<HTMLButtonElement>('[data-unified]').click(); await settle();
     expect(element('[data-trash-count]').textContent).toBe('');
   });
+  it('shows only the selected account draft count and filters the Drafts view to that account', async () => {
+    mockedApi.mockImplementation(async (path: string) => {
+      if (path.startsWith('/api/mail/outbound/drafts/count?'))
+        return { count: path.includes('accountId=2') ? 1 : 3 };
+      return defaultResponse(path);
+    });
+    element<HTMLButtonElement>('[data-unified]').click(); await settle();
+    expect(element('[data-draft-count]').textContent).toBe('');
+    element<HTMLElement>('[data-account="1"]').click(); await settle();
+    expect(element('[data-draft-count]').textContent).toBe('3');
+    element<HTMLElement>('[data-account="2"]').click(); await settle();
+    expect(element('[data-draft-count]').textContent).toBe('1');
+    element<HTMLButtonElement>('[data-drafts]').click(); await settle();
+    expect(location.pathname + location.search).toBe('/mail/drafts?account=2');
+    expect(element('[data-mailbox-account]').textContent).toBe('work@example.com');
+    expect(mockedApi.mock.calls.some(([path]) => path.startsWith('/api/mail/outbound/drafts?') && path.includes('accountId=2'))).toBe(true);
+    element<HTMLButtonElement>('[data-unified]').click(); await settle();
+    expect(element('[data-draft-count]').textContent).toBe('');
+  });
   it('updates the browser title from the active mailbox and its unread count', async () => {
     let workUnread = 5;
     mockedApi.mockImplementation(async (path: string, options?: RequestInit) => {
@@ -103,7 +122,7 @@ describe('mail interactions with the real mail template', () => {
         return { content: [], page: 0, totalPages: 1, totalElements: path.includes('accountId=1') ? 3 : path.includes('accountId=2') ? workUnread : 8 };
       if (path === '/api/mail/messages/101/read' && options?.method === 'PATCH') { workUnread++; return undefined; }
       if (path.startsWith('/api/mail/trash/count')) return { count: 4 };
-      if (path === '/api/mail/outbound/drafts/count') return { count: 2 };
+      if (path.startsWith('/api/mail/outbound/drafts/count?')) return { count: 2 };
       return defaultResponse(path);
     });
     element<HTMLElement>('[data-account="1"]').click(); await settle();
@@ -117,7 +136,7 @@ describe('mail interactions with the real mail template', () => {
     element<HTMLButtonElement>('[data-unified]').click(); await settle();
     expect(document.title).toBe('Inbox (8) | Dispatch');
     element<HTMLButtonElement>('[data-drafts]').click(); await settle();
-    expect(document.title).toBe('Drafts (2) | Dispatch');
+    expect(document.title).toBe('Drafts (2) | personal@example.com | Dispatch');
   });
   it('opens the first account trash and normalizes a direct trash URL', async () => {
     history.replaceState(null, '', '/mail/trash');
@@ -420,17 +439,15 @@ describe('mail interactions with the real mail template', () => {
     expect(element('[data-attachment-preview-content]').textContent).toContain('too large');
   });
 
-  it('enables preview and download only after a retry returns a clean scan', async () => {
+  it('does not offer retry or download when scanning is unavailable', async () => {
     mockedApi.mockImplementation(async (path: string) => {
       if (path === '/api/mail/messages/101') return { ...messages[0], attachments: [{ id: 8, filename: 'example.txt', scanStatus: 'UNAVAILABLE', sizeBytes: 50 }] };
-      if (path === '/api/mail/attachments/8/scan') return { scanStatus: 'CLEAN', scanDetail: 'No threat detected' };
       return defaultResponse(path);
     });
     element<HTMLButtonElement>('[data-message-id="101"] .message-open').click(); await settle();
     expect(document.querySelector('[aria-label="Download example.txt"]')).toBeNull();
-    element<HTMLButtonElement>('[aria-label="Retry scan example.txt"]').click(); await settle();
-    expect(document.querySelector('[aria-label="Download example.txt"]')).not.toBeNull();
-    expect(document.querySelector('[aria-label="Preview example.txt"]')).not.toBeNull();
+    expect(document.querySelector('[aria-label="Retry scan example.txt"]')).toBeNull();
+    expect(element('[data-attachment-list]').textContent).toContain('Scanning is not available right now.');
   });
 
   let cleanupListeners = () => {};
@@ -597,7 +614,7 @@ describe('mail interactions with the real mail template', () => {
       to: 'to@example.com', cc: 'cc@example.com', bcc: 'bcc@example.com', subject: 'Saved subject', bodyText: 'Saved body', bodyHtml: '',
       inReplyTo: '<reply>', referencesHeader: '<thread>', savedAt: '2026-09-22T08:00:00Z', attachments: [], sourceMessageId: 101 };
     mockedApi.mockImplementation(async (path: string, options?: { method?: string; body?: string }) => {
-      if (path === '/api/mail/outbound/drafts/count') return { count: 1 };
+      if (path.startsWith('/api/mail/outbound/drafts/count?')) return { count: 1 };
       if (path.startsWith('/api/mail/outbound/drafts?')) return { content: [{ ...draft, recipients: draft.to, preview: draft.bodyText }], page: 0, totalPages: 1, totalElements: 1 };
       if (path === '/api/mail/outbound/drafts/saved-draft') return options?.method ? { id: 'saved-draft', status: 'DRAFT' } : draft;
       return defaultResponse(path);
@@ -624,7 +641,7 @@ describe('mail interactions with the real mail template', () => {
     const draft = { id: 'saved-draft', accountId: 1, accountName: 'Personal', accountEmail: 'personal@example.com', accountActive: true,
       to: 'to@example.com', subject: 'Ready', bodyText: 'Ready to send', savedAt: '2026-09-22T08:00:00Z', attachments: [] };
     mockedApi.mockImplementation(async (path: string, options?: { method?: string }) => {
-      if (path === '/api/mail/outbound/drafts/count') return { count };
+      if (path.startsWith('/api/mail/outbound/drafts/count?')) return { count };
       if (path.startsWith('/api/mail/outbound/drafts?')) return { content: count ? [{ ...draft, recipients: draft.to, preview: draft.bodyText }] : [], page: 0, totalPages: count, totalElements: count };
       if (path === '/api/mail/outbound/drafts/saved-draft') return options?.method ? { id: 'saved-draft', status: 'DRAFT' } : draft;
       if (path === '/api/mail/outbound/send') { count = 0; return { id: 'saved-draft', status: 'QUEUED' }; }
@@ -668,7 +685,7 @@ describe('mail interactions with the real mail template', () => {
     const draft = { id: 'saved-draft', recipients: 'to@example.com', subject: 'Draft in Trash', preview: 'Body', savedAt: '2026-09-22T08:00:00Z' };
     mockedApi.mockImplementation(async (path: string, options?: { method?: string; body?: string }) => {
         if (path.startsWith('/api/mail/trash/count')) return { count: Number(trashed) + Number(mailTrashed) };
-      if (path === '/api/mail/outbound/drafts/count') return { count: Number(!trashed) };
+      if (path.startsWith('/api/mail/outbound/drafts/count?')) return { count: Number(!trashed) };
       if (path.startsWith('/api/mail/outbound/drafts?')) return { content: trashed ? [] : [draft], page: 0, totalPages: trashed ? 0 : 1, totalElements: Number(!trashed) };
       if (path === '/api/mail/outbound/drafts/saved-draft/trashed') { trashed = JSON.parse(options!.body!).value; return; }
       if (path.startsWith('/api/mail/trash?')) {
@@ -684,7 +701,7 @@ describe('mail interactions with the real mail template', () => {
     expect(element('[data-draft-id="saved-draft"]').classList.contains('removing')).toBe(true);
     await vi.advanceTimersByTimeAsync(190);
     expect(element('[data-draft-count]').textContent).toBe('');
-    expect(element('[data-trash-count]').textContent).toBe('');
+    expect(element('[data-trash-count]').textContent).toBe('2');
     expect(element('[data-message-toast-label]').textContent).toBe('Moved to Trash');
     expect(element('[data-undo-trash]').classList.contains('hidden')).toBe(false);
     element<HTMLButtonElement>('[data-undo-trash]').click(); await settle();

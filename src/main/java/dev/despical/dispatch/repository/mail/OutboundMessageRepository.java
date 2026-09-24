@@ -62,7 +62,19 @@ public interface OutboundMessageRepository extends JpaRepository<OutboundMessage
             + " :query, '%'))) ")
     Page<OutboundMessage> findDrafts(Long ownerId, OutboundMessage.Status status, String query, Pageable pageable);
 
+    @Query(
+        "select m from OutboundMessage m where m.createdBy.id = :ownerId and m.account.id = :accountId"
+            + " and m.status = :status and m.trashedAt is null and (:query = '' or lower(m.subject)"
+            + " like lower(concat('%', :query, '%')) or lower(m.recipients) like"
+            + " lower(concat('%', :query, '%')))"
+    )
+    Page<OutboundMessage> findDraftsForAccount(
+        Long ownerId, Long accountId, OutboundMessage.Status status, String query, Pageable pageable);
+
     long countByCreatedByIdAndStatusAndTrashedAtIsNull(Long ownerId, OutboundMessage.Status status);
+
+    long countByCreatedByIdAndAccountIdAndStatusAndTrashedAtIsNull(
+        Long ownerId, Long accountId, OutboundMessage.Status status);
 
     List<OutboundMessage> findAllByCreatedByIdAndStatusAndTrashedAtIsNotNull(Long ownerId, OutboundMessage.Status status);
 

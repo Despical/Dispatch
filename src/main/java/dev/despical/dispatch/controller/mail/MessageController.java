@@ -200,6 +200,7 @@ public class MessageController {
         @PathVariable Long id,
         @RequestParam(defaultValue = "false") boolean externalImages,
         @RequestParam(defaultValue = "false") boolean original,
+        @RequestParam(defaultValue = "false") boolean light,
         @AuthenticationPrincipal DispatchPrincipal principal
     ) {
         MailMessage message = queryService.get(principal.adminId(), id);
@@ -236,7 +237,7 @@ public class MessageController {
                     .body()
                     .empty()
                     .appendElement("p")
-                    .attr("style", "font:14px/1.6 system-ui;color:#8b95a5;padding:12px 0")
+                    .attr("style", "font:14px/1.6 system-ui;padding:12px 0")
                     .text(message.isHasAttachments()
                         ? "This message has no body text. It only contains"
                         + " attachments, shown below."
@@ -254,6 +255,9 @@ public class MessageController {
         content = guardedDocument.body().html();
         String presentation = original
             ? "html{color-scheme:light}body{background:#fff;color:#111;margin:0;min-height:100%;overflow-wrap:anywhere}a{color:#0000ee;text-decoration:underline}"
+            : light
+            ? "html{color-scheme:light}body{background:#fbfafd;color:#32283e;font:14px"
+            + " system-ui;line-height:1.55;padding:24px;margin:0;overflow-wrap:anywhere}a{color:#6038ae}"
             : "html{color-scheme:dark}body{background:#0d1117;color:#c9d1d9;font:14px"
             + " system-ui;line-height:1.55;padding:24px;margin:0;overflow-wrap:anywhere}a{color:#a78bfa}";
         String scriptNonce = UUID.randomUUID().toString().replace("-", "");

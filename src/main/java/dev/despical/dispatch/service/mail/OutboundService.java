@@ -144,10 +144,18 @@ public class OutboundService {
 
     @Transactional(readOnly = true)
     public Page<DraftSummary> drafts(Long ownerId, int page, String query) {
-        return outbox
-            .findDrafts(ownerId, OutboundMessage.Status.DRAFT, query.trim(),
-                PageRequest.of(Math.max(0, page), 30,
-                    Sort.by(Sort.Direction.DESC, "lastDraftSavedAt", "id")))
+        return drafts(ownerId, null, page, query);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DraftSummary> drafts(Long ownerId, Long accountId, int page, String query) {
+        var pageable = PageRequest.of(Math.max(0, page), 30,
+            Sort.by(Sort.Direction.DESC, "lastDraftSavedAt", "id"));
+        var result = accountId == null
+            ? outbox.findDrafts(ownerId, OutboundMessage.Status.DRAFT, query.trim(), pageable)
+            : outbox.findDraftsForAccount(
+                ownerId, accountId, OutboundMessage.Status.DRAFT, query.trim(), pageable);
+        return result
             .map(message -> {
                 String text = draftText(message);
                 return new DraftSummary(
@@ -158,8 +166,16 @@ public class OutboundService {
 
     @Transactional(readOnly = true)
     public long draftCount(Long ownerId) {
-        return outbox.countByCreatedByIdAndStatusAndTrashedAtIsNull(ownerId,
-            OutboundMessage.Status.DRAFT);
+        return draftCount(ownerId, null);
+    }
+
+    @Transactional(readOnly = true)
+    public long draftCount(Long ownerId, Long accountId) {
+        return accountId == null
+            ? outbox.countByCreatedByIdAndStatusAndTrashedAtIsNull(ownerId,
+                OutboundMessage.Status.DRAFT)
+            : outbox.countByCreatedByIdAndAccountIdAndStatusAndTrashedAtIsNull(
+                ownerId, accountId, OutboundMessage.Status.DRAFT);
     }
 
     @Transactional(readOnly = true)

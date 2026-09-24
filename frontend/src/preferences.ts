@@ -2,7 +2,6 @@ export type Language = 'en' | 'tr' | 'de' | 'fr' | 'ru' | 'pl';
 type Theme = 'dark' | 'light';
 
 const languages: Language[] = ['en', 'tr', 'de', 'fr', 'ru', 'pl'];
-const flags: Record<Language, string> = { en: '🇬🇧', tr: '🇹🇷', de: '🇩🇪', fr: '🇫🇷', ru: '🇷🇺', pl: '🇵🇱' };
 const names: Record<Language, Record<Language, string>> = {
   en: { en: 'English', tr: 'Turkish', de: 'German', fr: 'French', ru: 'Russian', pl: 'Polish' },
   tr: { en: 'İngilizce', tr: 'Türkçe', de: 'Almanca', fr: 'Fransızca', ru: 'Rusça', pl: 'Lehçe' },
@@ -135,6 +134,36 @@ function themeIcon(kind: 'sun' | 'moon'): SVGSVGElement {
   return icon;
 }
 
+function globeIcon(): SVGSVGElement {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.classList.add('preference-globe');
+  for (const data of ['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z', 'M2 12h20', 'M12 2c2.5 2.7 3.8 6 3.8 10S14.5 19.3 12 22', 'M12 2C9.5 4.7 8.2 8 8.2 12S9.5 19.3 12 22']) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', data);
+    icon.append(path);
+  }
+  return icon;
+}
+
+function flagIcon(language: Language): SVGSVGElement {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 16');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.classList.add('preference-flag');
+  const artwork: Record<Language, string> = {
+    en: '<path fill="#012169" d="M0 0h24v16H0z"/><path stroke="#fff" stroke-width="4" d="M0 0l24 16M24 0L0 16"/><path stroke="#c8102e" stroke-width="1.6" d="M0 0l24 16M24 0L0 16"/><path stroke="#fff" stroke-width="5" d="M12 0v16M0 8h24"/><path stroke="#c8102e" stroke-width="2.5" d="M12 0v16M0 8h24"/>',
+    tr: '<path fill="#e30a17" d="M0 0h24v16H0z"/><circle cx="10" cy="8" r="4.5" fill="#fff"/><circle cx="11.4" cy="8" r="3.6" fill="#e30a17"/><path fill="#fff" d="m16 5.1.8 2.1 2.2.1-1.7 1.4.6 2.1L16 9.6l-1.8 1.2.6-2.1-1.7-1.4 2.2-.1z"/>',
+    de: '<path fill="#161616" d="M0 0h24v5.33H0z"/><path fill="#dd0000" d="M0 5.33h24v5.34H0z"/><path fill="#ffce00" d="M0 10.67h24V16H0z"/>',
+    fr: '<path fill="#0055a4" d="M0 0h8v16H0z"/><path fill="#fff" d="M8 0h8v16H8z"/><path fill="#ef4135" d="M16 0h8v16h-8z"/>',
+    ru: '<path fill="#fff" d="M0 0h24v5.33H0z"/><path fill="#0039a6" d="M0 5.33h24v5.34H0z"/><path fill="#d52b1e" d="M0 10.67h24V16H0z"/>',
+    pl: '<path fill="#fff" d="M0 0h24v8H0z"/><path fill="#dc143c" d="M0 8h24v8H0z"/>'
+  };
+  icon.innerHTML = artwork[language];
+  return icon;
+}
+
 function controls(mobile = false): HTMLElement {
   const group = document.createElement('div');
   group.className = `preference-controls${mobile ? ' preference-controls-mobile' : ''}`;
@@ -147,11 +176,15 @@ function controls(mobile = false): HTMLElement {
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem('dispatch-theme', next); } catch { /* Storage may be unavailable. */ }
     updateControls();
+    document.dispatchEvent(new Event('dispatch:themechange'));
   });
   const picker = document.createElement('details');
   picker.className = 'preference-language';
   const trigger = document.createElement('summary');
   trigger.className = 'preference-language-trigger';
+  const code = document.createElement('span');
+  code.className = 'preference-language-code';
+  trigger.append(globeIcon(), code);
   const menu = document.createElement('div');
   menu.className = 'preference-language-menu'; menu.setAttribute('role', 'menu');
   for (const language of languages) {
@@ -161,9 +194,30 @@ function controls(mobile = false): HTMLElement {
     menu.append(option);
   }
   picker.append(trigger, menu);
+  const positionMenu = (): void => {
+    if (!picker.open) return;
+    const anchor = trigger.getBoundingClientRect();
+    const viewportWidth = Math.max(document.documentElement.clientWidth || window.innerWidth, 240);
+    const viewportHeight = Math.max(document.documentElement.clientHeight || window.innerHeight, 240);
+    const width = Math.min(Math.max(menu.scrollWidth, 180), viewportWidth - 24);
+    const desiredHeight = Math.min(menu.scrollHeight, 390, viewportHeight - 24);
+    const below = viewportHeight - anchor.bottom - 12;
+    const above = anchor.top - 12;
+    const placeBelow = below >= desiredHeight || below >= above;
+    const height = Math.max(0, Math.min(desiredHeight, placeBelow ? below : above));
+    menu.style.left = `${Math.max(12, Math.min(anchor.left, viewportWidth - width - 12))}px`;
+    menu.style.top = `${placeBelow ? anchor.bottom + 8 : Math.max(12, anchor.top - height - 8)}px`;
+    menu.style.width = `${width}px`;
+    menu.style.maxHeight = `${height}px`;
+  };
   picker.addEventListener('toggle', () => {
-    if (picker.open) document.querySelectorAll<HTMLDetailsElement>('.preference-language').forEach(other => { if (other !== picker) other.open = false; });
+    if (picker.open) {
+      document.querySelectorAll<HTMLDetailsElement>('.preference-language').forEach(other => { if (other !== picker) other.open = false; });
+      positionMenu();
+    }
   });
+  window.addEventListener('resize', positionMenu);
+  document.addEventListener('scroll', event => { if (!menu.contains(event.target as Node)) positionMenu(); }, true);
   group.append(toggle, picker);
   return group;
 }
@@ -177,11 +231,13 @@ function updateControls(): void {
     toggle.title = toggle.getAttribute('aria-label')!;
     const picker = group.querySelector<HTMLDetailsElement>('.preference-language')!;
     const trigger = picker.querySelector<HTMLElement>('summary')!;
-    trigger.textContent = `${flags[language]} ${names[language][language]}`;
+    trigger.querySelector<HTMLElement>('.preference-language-code')!.textContent = language.toUpperCase();
     trigger.setAttribute('aria-label', `${controlLabels[language].language}: ${names[language][language]}`);
     picker.querySelectorAll<HTMLButtonElement>('[data-language]').forEach(option => {
       const target = option.dataset.language as Language;
-      option.textContent = `${flags[target]} ${names[language][target]}`;
+      const label = document.createElement('span');
+      label.textContent = names[language][target];
+      option.replaceChildren(flagIcon(target), label);
       option.setAttribute('aria-checked', String(target === language));
     });
   });
@@ -215,10 +271,8 @@ export async function initPreferences(): Promise<void> {
   if (publicMobile) publicMobile.append(controls(true));
   const topActions = document.querySelector<HTMLElement>('.top-actions');
   if (topActions) topActions.prepend(controls());
-  const sideNav = document.querySelector<HTMLElement>('.account-pane .sidebar-primary');
-  if (sideNav) sideNav.append(controls(true));
-  const authCard = document.querySelector<HTMLElement>('.auth-card');
-  if (authCard) authCard.prepend(controls());
+  const accountMenu = document.querySelector<HTMLElement>('.account-popover');
+  if (accountMenu) accountMenu.prepend(controls(true));
   updateControls();
   if (document.body) translateTree(document.body);
   translateHead();

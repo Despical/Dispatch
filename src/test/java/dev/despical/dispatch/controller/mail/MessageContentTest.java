@@ -43,7 +43,7 @@ class MessageContentTest {
     String content(MailMessage message) {
         when(query.get(42L, 7L)).thenReturn(message);
         return new String(
-            controller.content(7L, false, false, principal).getBody(), StandardCharsets.UTF_8);
+            controller.content(7L, false, false, false, principal).getBody(), StandardCharsets.UTF_8);
     }
 
     @Test
@@ -66,5 +66,15 @@ class MessageContentTest {
         assertThat(content(message))
             .contains("&lt;script&gt;example()")
             .doesNotContain("<script>example()");
+    }
+
+    @Test
+    void rendersSimplifiedMessageWithLightThemeColors() {
+        MailMessage message = new MailMessage();
+        message.setSanitizedHtml("<p>Readable message</p>");
+        when(query.get(42L, 7L)).thenReturn(message);
+        String page = new String(
+            controller.content(7L, false, false, true, principal).getBody(), StandardCharsets.UTF_8);
+        assertThat(page).contains("background:#fbfafd", "color:#32283e", "Readable message");
     }
 }

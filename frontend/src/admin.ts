@@ -3,6 +3,9 @@ import { api } from './api';
 type Admin = { id: number; displayName: string; email: string; enabled: boolean; totpEnabled: boolean; role: 'ADMIN' | 'USER' };
 
 const $ = <T extends HTMLElement>(selector: string): T => document.querySelector<T>(selector)!;
+const element = (tag: string, className: string, value: string): HTMLElement => {
+  const result = document.createElement(tag); result.className = className; result.textContent = value; return result;
+};
 const errorText = (error: unknown): string => error instanceof Error ? error.message : 'The request could not be completed.';
 
 export function initAdminShell(): void {
@@ -68,7 +71,11 @@ export function initAdminUsers(): void {
       const row = document.createElement('article'); row.className = 'admin-user-row';
       const copy = document.createElement('div'); copy.className = 'admin-user-copy';
       const name = document.createElement('strong'); name.textContent = admin.displayName;
-      const detail = document.createElement('small'); detail.textContent = `${admin.email} · ${admin.role === 'ADMIN' ? 'Admin' : 'User'} · ${admin.enabled ? 'Enabled' : 'Disabled'} · ${admin.totpEnabled ? '2FA active' : 'Enrollment pending'}`;
+      const detail = document.createElement('small');
+      const email = element('span', '', admin.email); email.dataset.noTranslate = '';
+      detail.append(email, ' · ', element('span', '', admin.role === 'ADMIN' ? 'Admin' : 'User'), ' · ',
+        element('span', '', admin.enabled ? 'Enabled' : 'Disabled'), ' · ',
+        element('span', '', admin.totpEnabled ? '2FA active' : 'Enrollment pending'));
       copy.append(name, detail); row.append(copy);
       if (admin.id !== selfId) {
         const actions = document.createElement('div'); actions.className = 'admin-user-actions';

@@ -83,6 +83,7 @@ let inboxUnreadCount: number | null = null;
 let inboxCountAccountId: number | null = null;
 let inboxCountFolderId: number | null = null;
 let draftTotal = 0;
+let draftCountAccountId: number | null = null;
 let cannedRequest = 0;
 let mailExtras: ReturnType<typeof initMailExtras>;
 let mailSharing: ReturnType<typeof initMailSharing> | undefined;
@@ -98,8 +99,8 @@ async function restoreMailLocation():Promise<void>{
   const revision=++navigationRevision,route=readMailLocation(new URL(window.location.href));
   closeMobileNav();
   mailExtras.leave();hideMessageToast();selectedMessageIds.clear();clearDetail();
-  const routeAccountId = route.view === 'trash' && route.accountId === null
-    ? state.accounts[0]?.id ?? null : route.accountId;
+  const routeAccountId = (route.view === 'trash' || route.view === 'drafts') && route.accountId === null
+    ? state.accounts[0]?.id ?? mailSharing?.accounts()[0]?.id ?? null : route.accountId;
   const account=[...state.accounts,...(mailSharing?.accounts()??[])].find(a=>a.id===routeAccountId);
   state.accountId=account && (route.view!=='trash'||state.accounts.some(own=>own.id===account.id)||sharedPermissions(account.id)?.canDelete)?account.id:null;
   state.folderId=account?route.folderId:null;
@@ -107,7 +108,7 @@ async function restoreMailLocation():Promise<void>{
   state.extra=route.view==='contacts'||route.view==='sent'?route.view:null;state.trash=route.view==='trash';state.drafts=route.view==='drafts';
   state.filter=route.filter;state.query=route.query;state.page=route.page;
   $<HTMLInputElement>('[data-search]').value=state.query;
-  setMailboxTitle(state.extra==='contacts'?'Contacts':state.extra==='sent'?'Sent':state.trash?'Trash':state.drafts?'Drafts':account?.email??'Unified inbox',state.trash?account?.email:undefined);
+  setMailboxTitle(state.extra==='contacts'?'Contacts':state.extra==='sent'?'Sent':state.trash?'Trash':state.drafts?'Drafts':account?.email??'Unified inbox',state.trash||state.drafts?account?.email:undefined);
   renderAccounts();updatePanePrimaryAction();updateEmptyStateCopy();
   await loadMessages();if(revision!==navigationRevision)return;
   if(route.messageId)await openMessage(route.messageId,false);
@@ -130,7 +131,7 @@ function renderDocumentTitle(): void {
       : state.folderId === null ? 'Inbox'
         : state.folders.get(state.accountId!)?.find(folder => folder.id === state.folderId)?.name ?? 'Inbox';
   const count = state.trash ? (trashCountAccountId === state.accountId ? trashTotal : 0)
-    : state.drafts ? draftTotal
+    : state.drafts ? (draftCountAccountId === state.accountId ? draftTotal : 0)
       : state.extra || inboxCountAccountId !== state.accountId || inboxCountFolderId !== state.folderId ? 0
         : inboxUnreadCount ?? 0;
   document.title = `${translate(label)}${count > 0 ? ` (${count})` : ''}${account ? ` | ${account.email}` : ''} | Dispatch`;
@@ -177,6 +178,11 @@ let trashCountAccountId: number | null = null;
 function renderTrashCount(): void {
   $('[data-trash-count]').textContent = state.accountId !== null && trashCountAccountId === state.accountId && trashTotal > 0
     ? String(trashTotal) : '';
+}
+
+function renderDraftCount(): void {
+  $('[data-draft-count]').textContent = state.accountId !== null && draftCountAccountId === state.accountId && draftTotal > 0
+    ? String(draftTotal) : '';
 }
 
 function errorMessage(error: unknown): string {
@@ -253,8 +259,8 @@ export function formatMessageDate(value: string, now = new Date()): string {
   return new Intl.DateTimeFormat(locale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(item);
 }
 
-export function messageContentUrl(id: number, externalImages = false, original = false): string {
-  return `/api/mail/messages/${id}/content?externalImages=${externalImages}&original=${original}`;
+export function messageContentUrl(id: number, externalImages = false, original = false, light = false): string {
+  return `/api/mail/messages/${id}/content?externalImages=${externalImages}&original=${original}&light=${light}`;
 }
 
 export function safeExternalLink(value: string): { url: string; host: string; secure: boolean } | null {
@@ -274,7 +280,7 @@ export function safeExternalLink(value: string): { url: string; host: string; se
 export function profileInitials(value: string): string {
   const parts = value.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return 'A';
-  return `${parts[0][0]}${parts.length > 1 ? parts[parts.length - 1][0] : ''}`.toLocaleUpperCase();
+  return `${parts[0][0]}${parts.length > 1 ? parts[parts.length - 1][0] : ''}`.toUpperCase();
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
@@ -337,6 +343,7 @@ async function loadAccounts(showLoading = true): Promise<void> {
 
 function renderAccounts(): void {
   renderTrashCount();
+  renderDraftCount();
   renderDocumentTitle();
   if (accountOrder?.busy()) { pendingAccountRender = true; return; }
   pendingAccountRender = false;
@@ -402,6 +409,7 @@ function selectTrash(): void {
 
 async function loadMessages(): Promise<void> {
   void refreshTrashCount();
+  void refreshDraftCount();
   void refreshInboxUnreadCount();
   const request = ++mailboxRequest;
   if (state.extra) { await mailExtras.load(state.query,state.page); return; }
@@ -409,7 +417,12 @@ async function loadMessages(): Promise<void> {
   loading.classList.remove('hidden'); $<HTMLElement>('[data-message-empty]').classList.add('hidden'); list.replaceChildren(loading);
   if (state.drafts) {
     try {
-      const params = new URLSearchParams({ page: String(state.page), query: state.query });
+      if (state.accountId === null) {
+        state.pages = 0; state.messageTotal = 0; visibleDrafts = [];
+        renderDrafts([]); renderPagination(); updateEmptyStateCopy(); updatePanePrimaryAction();
+        return;
+      }
+      const params = new URLSearchParams({ page: String(state.page), query: state.query, accountId: String(state.accountId) });
       const result = await api<Page<DraftSummary>>(`/api/mail/outbound/drafts?${params}`);
       if (request !== mailboxRequest) return;
       if (!result.content.length && result.totalPages > 0 && state.page >= result.totalPages) { state.page = result.totalPages - 1; await loadMessages(); return; }
@@ -448,14 +461,17 @@ async function loadMessages(): Promise<void> {
 function selectDrafts(): void {
   mailExtras.leave(); state.extra = null;
   hideMessageToast();
-  state.drafts = true; state.trash = false; state.accountId = null; state.folderId = null; state.page = 0;
+  const accounts = [...state.accounts, ...(mailSharing?.accounts() ?? [])];
+  if (!accounts.some(account => account.id === state.accountId))
+    state.accountId = accounts[0]?.id ?? null;
+  state.drafts = true; state.trash = false; state.folderId = null; state.page = 0;
   state.query = ''; $<HTMLInputElement>('[data-search]').value = '';
   selectedMessageIds.clear();
   clearDetail();
-  setMailboxTitle('Drafts');
+  setMailboxTitle('Drafts', accounts.find(account => account.id === state.accountId)?.email);
   syncMailUrl();
   renderAccounts(); updatePanePrimaryAction(); updateEmptyStateCopy();
-  void loadMessages(); void refreshDraftCount();
+  void loadMessages();
   closeMobileNav();
 }
 
@@ -471,11 +487,21 @@ function selectExtra(view: ExtraView): void {
 
 async function refreshDraftCount(): Promise<void> {
   const request = ++draftCountRequest;
+  const accountId = state.accountId;
+  if (accountId === null) {
+    draftTotal = 0;
+    draftCountAccountId = null;
+    renderDraftCount();
+    renderDocumentTitle();
+    return;
+  }
+  renderDraftCount();
   try {
-    const result = await api<{ count: number }>('/api/mail/outbound/drafts/count');
-    if (request === draftCountRequest) {
+    const result = await api<{ count: number }>(`/api/mail/outbound/drafts/count?accountId=${accountId}`);
+    if (request === draftCountRequest && state.accountId === accountId) {
       draftTotal = result.count;
-      $('[data-draft-count]').textContent = result.count > 0 ? String(result.count) : '';
+      draftCountAccountId = accountId;
+      renderDraftCount();
       renderDocumentTitle();
     }
   } catch { /* Keep the last known count when offline. */ }
@@ -1059,7 +1085,8 @@ function refreshDetailFrame(): void {
   const detail = state.detail; if (!detail) return;
   const frame = $<HTMLIFrameElement>('[data-message-frame]');
   frame.classList.toggle('original-render', detailOriginalFormatting);
-  frame.src = messageContentUrl(detail.id, detailExternalImages, detailOriginalFormatting);
+  frame.src = messageContentUrl(detail.id, detailExternalImages, detailOriginalFormatting,
+    document.documentElement.dataset.theme === 'light');
   const renderButton = $<HTMLButtonElement>('[data-render-mode]');
   renderButton.classList.toggle('active', detailOriginalFormatting);
   renderButton.setAttribute('aria-pressed', String(detailOriginalFormatting));
@@ -1133,14 +1160,6 @@ function renderAttachments(items: Attachment[]): void {
         link.href = url; link.download = item.filename; document.body.append(link); link.click(); link.remove();
         window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
       });
-    } else if (item.scanStatus === 'UNAVAILABLE' && !sharedPermissions(state.detail?.accountId ?? null)) {
-      action('Retry scan', 'M20 11a8 8 0 0 0-14.8-4M4 4v5h5M4 13a8 8 0 0 0 14.8 4M20 20v-5h-5', async () => {
-        const result = await api<Pick<Attachment, 'scanStatus' | 'scanDetail'>>(`/api/mail/attachments/${item.id}/scan`, { method: 'POST' });
-        Object.assign(item, result);
-        if (state.detail?.attachments === items) renderAttachments(items);
-        if (result.scanStatus === 'UNAVAILABLE') alert('The scanner is currently unavailable. Please try again shortly.');
-      });
-      copy.append(node('small', '', 'Retry scanning to enable download.'));
     }
     row.append(actions);
     list.append(row);
@@ -1163,7 +1182,7 @@ async function previewAttachment(item: Attachment): Promise<void> {
 }
 
 function scanLabel(item: Attachment): string {
-  return ({ SCANNING: 'Scanning', CLEAN: 'No threat detected', SUSPICIOUS: 'Suspicious', UNAVAILABLE: 'Scanner unavailable', QUARANTINED: 'Quarantined' } as Record<string, string>)[item.scanStatus] ?? item.scanStatus;
+  return ({ SCANNING: 'Scanning', CLEAN: 'No threat detected', SUSPICIOUS: 'Suspicious', UNAVAILABLE: 'Scanning is not available right now.', QUARANTINED: 'Quarantined' } as Record<string, string>)[item.scanStatus] ?? item.scanStatus;
 }
 
 function formatBytes(bytes: number): string { return bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`; }
@@ -1459,6 +1478,7 @@ export function applyAccountAvailability(available: boolean): void {
 }
 
 export async function initMail(): Promise<void> {
+  document.addEventListener('dispatch:themechange', () => { if (state.detail) refreshDetailFrame(); });
   document.addEventListener('dispatch:languagechange', () => {
     renderDocumentTitle();
     renderMessages();

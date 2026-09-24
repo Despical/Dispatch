@@ -24,7 +24,7 @@ export function initStatusPage(): void {
       banner.dataset.statusOverallState = status.overall;
       item('[data-status-overall]').textContent = status.overall === 'OPERATIONAL' ? 'All systems operational' : status.overall === 'ISSUE' ? 'Some systems need attention' : 'Monitoring data incomplete';
       item('[data-status-summary]').textContent = status.overall === 'OPERATIONAL' ? 'All monitored systems are operational.' : status.overall === 'ISSUE' ? 'Review the service checks and active alerts below.' : 'One or more monitoring services cannot be reached.';
-      item('[data-status-updated]').textContent = `Checked ${new Date(status.checkedAt).toLocaleString()}`;
+      item('[data-status-updated]').textContent = `Checked ${new Date(status.checkedAt).toLocaleString(document.documentElement.lang || 'en')}`;
       item('[data-status-load]').textContent = status.capacity.load;
       item('[data-status-uptime]').textContent = status.capacity.uptime;
       const resources = item('[data-status-resources]'); resources.replaceChildren();
@@ -54,6 +54,32 @@ export function initStatusPage(): void {
         copy.append(element('strong', '', alert.name), element('p', '', alert.summary));
         row.append(copy, element('span', '', alert.severity)); alerts.append(row);
       }
+      const reasonsSection = item<HTMLElement>('[data-status-reasons-section]');
+      const reasons = item<HTMLElement>('[data-status-reasons]'); reasons.replaceChildren();
+      const affected = status.services.filter(service => service.state === 'DOWN' || (status.overall === 'UNKNOWN' && service.state !== 'UP'));
+      for (const service of affected) {
+        const row = element('article', 'admin-status-reason');
+        const copy = element('div', 'admin-status-reason-copy');
+        copy.append(element('strong', '', service.name), element('p', '', service.detail));
+        row.append(copy, element('span', 'admin-status-reason-state', label(service.state)));
+        reasons.append(row);
+      }
+      for (const resource of status.capacity.resources.filter(resource => resource.state === 'DOWN' || resource.state === 'WARN' || (status.overall === 'UNKNOWN' && resource.state === 'UNKNOWN'))) {
+        const row = element('article', 'admin-status-reason');
+        const copy = element('div', 'admin-status-reason-copy');
+        copy.append(element('strong', '', resource.name), element('p', '', resource.detail));
+        row.append(copy, element('span', 'admin-status-reason-state', `${resource.value} · ${label(resource.state)}`));
+        reasons.append(row);
+      }
+      for (const alert of status.alerts) {
+        const row = element('article', 'admin-status-reason');
+        const copy = element('div', 'admin-status-reason-copy');
+        copy.append(element('strong', '', alert.name), element('p', '', alert.summary));
+        row.append(copy, element('span', 'admin-status-reason-state', alert.severity));
+        reasons.append(row);
+      }
+      item('[data-status-reasons-title]').textContent = status.overall === 'UNKNOWN' ? 'Why status is incomplete' : 'Why attention is needed';
+      reasonsSection.classList.toggle('hidden', status.overall === 'OPERATIONAL' || reasons.childElementCount === 0);
       item('[data-status-error]').textContent = '';
     } catch {
       banner.dataset.statusOverallState = 'UNKNOWN';
@@ -62,6 +88,7 @@ export function initStatusPage(): void {
       item('[data-status-resources]').replaceChildren(element('p', 'admin-status-loading', 'Host capacity unavailable.'));
       item('[data-status-services]').replaceChildren(element('p', 'admin-status-loading', 'Service checks unavailable.'));
       item('[data-status-alerts]').replaceChildren(element('p', 'admin-status-no-alerts', 'Alert information unavailable.'));
+      item('[data-status-reasons-section]').classList.add('hidden');
       item('[data-status-error]').textContent = 'Status will update automatically.';
     } finally { loading = false; }
   };

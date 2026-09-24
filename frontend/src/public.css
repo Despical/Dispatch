@@ -28,6 +28,10 @@ html:has(.public-page) { scroll-behavior: smooth; }
 .public-button-small { min-height: 44px; padding-inline: 22px; font-size: 14px; gap: 8px;  }
 .public-text-link { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: #c0b1ee; transition: color .16s;  }
 .public-text-link:hover { color: #b49afd; }
+.contact-topic .public-text-link { color: #cdb4f0; text-decoration: none; }
+.contact-topic .public-text-link::after { content: "→"; display: inline-block; font-size: 1.35rem; font-weight: 400; line-height: .85; transition: transform .18s ease; }
+.contact-topic .public-text-link:hover::after, .contact-topic .public-text-link:focus-visible::after { transform: translateX(4px); }
+@media (prefers-reduced-motion: reduce) { .contact-topic .public-text-link::after { transition: none; } }
 .public-text-link > span { font-size: 18px; font-weight: 400; }
 .public-eyebrow { display: flex; align-items: center; gap: 9px; font-size: 14px; letter-spacing: .025em; line-height: 1.4; font-weight: 500; color: #aba5bb;  }
 .public-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #b396f5; box-shadow: 0 0 0 4px #a78bfa12; }

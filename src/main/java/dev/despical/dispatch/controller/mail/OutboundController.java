@@ -79,9 +79,10 @@ public class OutboundController {
     PageResponse<DraftSummary> drafts(
         @AuthenticationPrincipal DispatchPrincipal principal,
         @RequestParam(defaultValue = "0") int page,
+        @RequestParam(required = false) Long accountId,
         @RequestParam(defaultValue = "") String query
     ) {
-        var result = outboundService.drafts(principal.adminId(), page, query);
+        var result = outboundService.drafts(principal.adminId(), accountId, page, query);
 
         return new PageResponse<>(
             result.getContent(),
@@ -92,8 +93,10 @@ public class OutboundController {
     }
 
     @GetMapping("/drafts/count")
-    Map<String, Long> draftCount(@AuthenticationPrincipal DispatchPrincipal principal) {
-        return Map.of("count", outboundService.draftCount(principal.adminId()));
+    Map<String, Long> draftCount(
+        @AuthenticationPrincipal DispatchPrincipal principal,
+        @RequestParam(required = false) Long accountId) {
+        return Map.of("count", outboundService.draftCount(principal.adminId(), accountId));
     }
 
     @GetMapping("/drafts/{id}")

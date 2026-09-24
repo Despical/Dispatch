@@ -88,7 +88,11 @@ class PrivateActivityAccessTest {
         verify(activity).activity(42L, session, 2);
         mvc.perform(get("/api/mail/outbound/drafts/count?ownerId=99").with(authentication(auth)))
             .andExpect(status().isOk());
-        verify(outbound).draftCount(42L);
+        verify(outbound).draftCount(42L, null);
+        mvc.perform(get("/api/mail/outbound/drafts/count?ownerId=99&accountId=7")
+                .with(authentication(auth)))
+            .andExpect(status().isOk());
+        verify(outbound).draftCount(42L, 7L);
         mvc.perform(
                 get("/api/mail/outbound/drafts/" + draft + "?ownerId=99")
                     .with(authentication(auth)))

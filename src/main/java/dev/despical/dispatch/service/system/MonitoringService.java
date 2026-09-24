@@ -118,7 +118,8 @@ public class MonitoringService {
             // A failed connection is reported honestly below.
         }
         services.add(new ServiceCheck("Database", "Data",
-            "Primary application database connection.", databaseStatus,
+            "UP".equals(databaseStatus) ? "Primary application database connection is healthy."
+                : "The application cannot connect to its database.", databaseStatus,
             elapsed(started)));
         String syncStatus = "UNKNOWN";
         if (accounts.count() == 0) syncStatus = "UP";
@@ -126,16 +127,21 @@ public class MonitoringService {
             syncStatus = Duration.between(sync.getLastSuccessfulSync(), checkedAt).toMinutes() > 15
                 ? "DOWN"
                 : "UP";
-        services.add(new ServiceCheck("Mail sync", "Email", "Connected mailbox synchronization.",
-            syncStatus, null));
+        services.add(new ServiceCheck("Mail sync", "Email",
+            "DOWN".equals(syncStatus) ? "No successful mailbox synchronization in the last 15 minutes."
+                : "UNKNOWN".equals(syncStatus) ? "No successful mailbox synchronization has been recorded."
+                : "Connected mailbox synchronization is current.", syncStatus, null));
         long pending = outbox.pendingCount();
         services.add(new ServiceCheck("Outgoing mail", "Email",
-            pending + " message" + (pending == 1 ? "" : "s") +
-                " pending in the outbox.",
+            pending > 100 ? pending + " messages pending in the outbox (limit: 100)."
+                : pending + " message" + (pending == 1 ? "" : "s") +
+                    " pending in the outbox.",
             pending > 100 ? "DOWN" : "UP", null));
+        boolean scannerAvailable = scanner.isAvailable();
         services.add(new ServiceCheck("Attachment scanner", "Security",
-            "Malware scanning for attachments.",
-            scanner.isAvailable() ? "UP" : "DOWN", null));
+            scannerAvailable ? "Attachment scanning is available."
+                : "Attachment scanning is unavailable; downloads remain blocked.",
+            scannerAvailable ? "UP" : "DOWN", null));
         String host = "UNKNOWN";
         String prometheusStatus = "UNKNOWN";
         started = System.nanoTime();
@@ -154,10 +160,13 @@ public class MonitoringService {
             // Monitoring is unavailable; never present missing telemetry as healthy.
         }
         services.add(new ServiceCheck("Prometheus", "Monitoring",
-            "Metrics collection and alert rule evaluation.",
+            "UP".equals(prometheusStatus) ? "Metrics collection is available."
+                : "Metrics collection could not be reached.",
             prometheusStatus, elapsed(started)));
-        services.add(new ServiceCheck("Node exporter", "Monitoring", "Host metrics scrape target.",
-            host, null));
+        services.add(new ServiceCheck("Node exporter", "Monitoring",
+            "DOWN".equals(host) ? "The host metrics scrape target is down."
+                : "UNKNOWN".equals(host) ? "The host metrics scrape target could not be checked."
+                : "Host metrics are being collected.", host, null));
         String alertmanagerStatus = "UNKNOWN";
         List<Alert> alerts = new ArrayList<>();
         started = System.nanoTime();
@@ -177,15 +186,19 @@ public class MonitoringService {
             // Alertmanager might be unreachable while the application is available.
         }
         services.add(new ServiceCheck("Alertmanager", "Monitoring",
-            "Alert grouping and email delivery.", alertmanagerStatus,
+            "UP".equals(alertmanagerStatus) ? "Alert grouping is available."
+                : "Alertmanager could not be reached.", alertmanagerStatus,
             elapsed(started)));
+        Capacity capacity = capacity();
         String overall =
             services.stream().anyMatch(item -> "DOWN".equals(item.state())) || !alerts.isEmpty()
+                || capacity.resources().stream().anyMatch(item -> "DOWN".equals(item.state()) || "WARN".equals(item.state()))
                 ? "ISSUE"
-                : services.stream().anyMatch(item -> !"UP".equals(item.state())) ? "UNKNOWN"
+                : services.stream().anyMatch(item -> !"UP".equals(item.state()))
+                    || capacity.resources().stream().anyMatch(item -> "UNKNOWN".equals(item.state())) ? "UNKNOWN"
                 : "OPERATIONAL";
         return new Status(overall, application, host, alertmanagerStatus, alerts, checkedAt,
-            capacity(), services);
+            capacity, services);
     }
 
     private Capacity capacity() {
