@@ -273,12 +273,18 @@ describe('login form', () => {
     login.querySelector<HTMLInputElement>('[name=password]')!.value = 'a-very-long-password';
     login.dispatchEvent(new SubmitEvent('submit', {bubbles: true, cancelable: true}));
     await vi.waitFor(() => expect(document.querySelector('[data-totp-form]')?.classList.contains('hidden')).toBe(false));
+    const oldCode = document.querySelector<HTMLInputElement>('[data-totp-form] [name=code]')!;
+    oldCode.value = '654321';
+    oldCode.dispatchEvent(new Event('input', {bubbles: true}));
+    expect(document.querySelector('[data-totp-form] .auth-code-slots')?.textContent).toBe('654321');
     document.querySelector<HTMLButtonElement>('[data-start-authenticator-recovery]')!.click();
     expect(document.querySelector('[data-recovery-form]')?.classList.contains('hidden')).toBe(false);
     const recovery = document.querySelector<HTMLFormElement>('[data-recovery-form]')!;
     recovery.querySelector<HTMLInputElement>('[name=recoveryCode]')!.value = 'AAAA-BBBB-CCCC-DDDD';
     recovery.dispatchEvent(new SubmitEvent('submit', {bubbles: true, cancelable: true}));
     await vi.waitFor(() => expect(document.querySelector('[data-totp-secret]')?.textContent).toBe('new-secret'));
+    expect(oldCode.value).toBe('');
+    expect(document.querySelector('[data-totp-form] .auth-code-slots')?.textContent).toBe('');
     expect(JSON.parse(requests.find(request => request.path === '/api/auth/recover-authenticator')!.body!))
       .toEqual({challengeId: 'recover-challenge', recoveryCode: 'AAAA-BBBB-CCCC-DDDD'});
     const verify = document.querySelector<HTMLFormElement>('[data-totp-form]')!;

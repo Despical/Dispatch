@@ -215,6 +215,12 @@ export function initLogin(): void {
       const title = document.querySelector('[id=auth-title]'); if (title) title.textContent = 'Connect your new authenticator';
       document.querySelector('[data-login-intro]')?.classList.add('hidden');
       totp.querySelector<HTMLButtonElement>('button[type=submit]')!.textContent = 'Finish secure setup';
+      const codeInput = totp.querySelector<HTMLInputElement>('input[name=code]');
+      if (codeInput) {
+        codeInput.value = '';
+        codeInput.removeAttribute('aria-invalid');
+        codeInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
       input.value = '';
       recoveryForm.classList.add('hidden'); totp.classList.remove('hidden');
       totp.querySelector<HTMLInputElement>('input[name=code]')?.focus();
