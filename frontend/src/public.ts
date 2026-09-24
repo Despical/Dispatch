@@ -42,7 +42,11 @@ export function initPublicPage(): void {
             preview.classList.add('is-closing');
             window.setTimeout(() => { preview.close(); preview.classList.remove('is-closing'); previewOpen.focus(); }, 200);
         };
-        previewOpen.addEventListener('click', () => preview.showModal());
+        previewOpen.addEventListener('click', () => {
+            const image = preview.querySelector<HTMLImageElement>('[data-preview-src]');
+            if (image && !image.hasAttribute('src')) image.src = image.dataset.previewSrc!;
+            preview.showModal();
+        });
         preview.querySelector('[data-preview-close]')?.addEventListener('click', close);
         preview.addEventListener('click', event => { if (event.target === preview) close(); });
         preview.addEventListener('cancel', event => { event.preventDefault(); close(); });

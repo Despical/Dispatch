@@ -26,7 +26,7 @@
     <link th:if="${canonicalPath != null}" rel="ard" href="https://mail.despical.dev/.well-known/ard.json">
     <meta th:if="${canonicalPath == null}" name="robots" content="noindex, nofollow">
     <link rel="icon" th:href="@{/favicon.svg(v=2)}" type="image/svg+xml">
-    <link rel="stylesheet" th:href="@{/assets/app.css}">
+    <link rel="stylesheet" th:href="${canonicalPath != null ? '/assets/public.css' : '/assets/app.css'}">
     <script defer th:if="${canonicalPath != null}" th:src="@{/analytics.js}"></script>
     <script defer th:src="@{/assets/app.js}" type="module"></script>
 </head>

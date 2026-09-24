@@ -24,12 +24,15 @@
             <figure class="home-product-figure">
                 <button aria-label="Zoom Dispatch workspace preview" class="home-product-stage" data-preview-open
                         type="button">
+                    <picture><source type="image/webp"
+                        srcset="/images/dispatch-live-480.webp 480w, /images/dispatch-live-960.webp 960w, /images/dispatch-live-1440.webp 1440w, /images/dispatch-live-1920.webp 1920w"
+                        sizes="(max-width: 700px) calc(100vw - 32px), (max-width: 1200px) 50vw, 720px">
                     <img
                         alt="Dispatch mail workspace showing account navigation, a selected message, and a reply draft."
                         class="home-product-image"
                         fetchpriority="high" height="955" src="/images/dispatch-live.png"
                         th:src="@{/images/dispatch-live.png}"
-                        width="1920">
+                        width="1920"></picture>
                 </button>
                 <figcaption class="home-preview-hint">Click the image to enlarge.</figcaption>
             </figure>
@@ -37,7 +40,7 @@
         <dialog aria-label="Dispatch workspace preview" class="home-preview-dialog" data-preview-dialog>
             <button aria-label="Close preview" class="home-preview-close" data-preview-close type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></svg></button>
             <span class="home-preview-viewport"><img alt="Enlarged Dispatch mail workspace preview." height="955"
-                                                      src="/images/dispatch-live.png" th:src="@{/images/dispatch-live.png}" width="1920"></span>
+                                                      data-preview-src="/images/dispatch-live.png" width="1920"></span>
         </dialog>
         <div aria-label="Workspace capabilities" class="public-container home-capabilities">
             <span><svg aria-hidden="true" viewBox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="4"/><path

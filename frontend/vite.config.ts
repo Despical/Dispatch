@@ -8,10 +8,14 @@ export default defineConfig({
     emptyOutDir: true,
     manifest: false,
     rollupOptions: {
-      input: 'src/main.ts',
+      input: {
+        app: 'src/main.ts',
+        'public-styles': 'src/public-styles.css'
+      },
       output: {
         entryFileNames: 'app.js',
-        assetFileNames: asset => asset.name?.endsWith('.css') ? 'app.css' : '[name][extname]'
+        assetFileNames: asset => asset.name === 'public-styles.css' ? 'public.css'
+          : asset.name?.endsWith('.css') ? 'app.css' : '[name][extname]'
       }
     }
   }

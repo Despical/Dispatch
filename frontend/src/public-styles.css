@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "./public-base.css";
+@import "./public.css";
+@import "./public-shell.css";
+@import "./home.css";
+@import "./preferences.css";
+@import "./light.css";

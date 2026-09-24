@@ -84,6 +84,8 @@ class PageControllerSecurityTest {
             .andExpect(content().string(containsString("content=\"#8b5cf6\" name=\"theme-color\"")))
             .andExpect(content().string(containsString("rel=\"canonical\"")))
             .andExpect(content().string(containsString("src=\"/analytics.js\"")))
+            .andExpect(content().string(containsString("href=\"/assets/public.css\"")))
+            .andExpect(content().string(containsString("/images/dispatch-live-480.webp 480w")))
             .andExpect(content().string(containsString("src=\"/images/dispatch-live.png\"")))
             .andExpect(content().string(containsString("href=\"/features\"")))
             .andExpect(content().string(containsString("href=\"/security\"")))
@@ -117,6 +119,9 @@ class PageControllerSecurityTest {
         mvc.perform(get("/images/dispatch-live.png"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("image/png"));
+        mvc.perform(get("/images/dispatch-live-480.webp"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("image/webp"));
         mvc.perform(get("/images/dispatch-social.png"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("image/png"));
