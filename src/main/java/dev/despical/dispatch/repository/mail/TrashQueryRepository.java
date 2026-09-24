@@ -26,6 +26,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Types;
+
 /**
  * @author Despical
  * <p>
@@ -47,17 +49,17 @@ public class TrashQueryRepository {
     ) {
         String union =
             """
-                SELECT m.id, 0 AS draft, m.trashed_at FROM mail_messages m
+                SELECT m.id, FALSE AS draft, m.trashed_at FROM mail_messages m
                 JOIN mail_accounts a ON a.id = m.mail_account_id
-                WHERE a.owner_admin_user_id = :mailboxOwner AND (:accountId IS NULL OR a.id = :accountId) AND m.trashed_flag = TRUE
+                WHERE a.owner_admin_user_id = :mailboxOwner AND (CAST(:accountId AS BIGINT) IS NULL OR a.id = :accountId) AND m.trashed_flag = TRUE
                   AND :filter <> 'drafts'
                   AND (:filter <> 'unread' OR m.read_flag = FALSE)
                   AND (:filter <> 'starred' OR m.starred_flag = TRUE)
                   AND (:query = '' OR LOWER(m.subject) LIKE :pattern OR LOWER(m.from_address) LIKE :pattern OR LOWER(m.text_body) LIKE :pattern)
                 UNION ALL
-                SELECT d.id, 1 AS draft, d.trashed_at FROM outbound_messages d
+                SELECT d.id, TRUE AS draft, d.trashed_at FROM outbound_messages d
                 JOIN mail_accounts a ON a.id = d.mail_account_id
-                WHERE d.created_by_id = :owner AND (:accountId IS NULL OR a.id = :accountId) AND d.status = 'DRAFT' AND d.trashed_at IS NOT NULL
+                WHERE d.created_by_id = :owner AND (CAST(:accountId AS BIGINT) IS NULL OR a.id = :accountId) AND d.status = 'DRAFT' AND d.trashed_at IS NOT NULL
                   AND :filter IN ('all', 'drafts')
                   AND (:query = '' OR LOWER(d.subject) LIKE :pattern OR LOWER(d.recipients) LIKE :pattern OR LOWER(d.body_text) LIKE :pattern)
                 """;
@@ -66,7 +68,7 @@ public class TrashQueryRepository {
             new MapSqlParameterSource()
                 .addValue("owner", ownerId)
                 .addValue("mailboxOwner", mailboxOwnerId)
-                .addValue("accountId", accountId)
+                .addValue("accountId", accountId, Types.BIGINT)
                 .addValue("filter", filter)
                 .addValue("query", query)
                 .addValue("pattern", "%" + query.toLowerCase(java.util.Locale.ROOT) + "%")
@@ -89,13 +91,13 @@ public class TrashQueryRepository {
         var params = new MapSqlParameterSource()
             .addValue("owner", ownerId)
             .addValue("mailboxOwner", mailboxOwnerId)
-            .addValue("accountId", accountId);
+            .addValue("accountId", accountId, Types.BIGINT);
         Long count = jdbc.queryForObject(
             """
                 SELECT (SELECT COUNT(*) FROM mail_messages m JOIN mail_accounts a ON a.id = m.mail_account_id
-                        WHERE a.owner_admin_user_id = :mailboxOwner AND (:accountId IS NULL OR a.id = :accountId) AND m.trashed_flag = TRUE)
+                        WHERE a.owner_admin_user_id = :mailboxOwner AND (CAST(:accountId AS BIGINT) IS NULL OR a.id = :accountId) AND m.trashed_flag = TRUE)
                      + (SELECT COUNT(*) FROM outbound_messages d JOIN mail_accounts a ON a.id = d.mail_account_id
-                        WHERE d.created_by_id = :owner AND (:accountId IS NULL OR a.id = :accountId)
+                        WHERE d.created_by_id = :owner AND (CAST(:accountId AS BIGINT) IS NULL OR a.id = :accountId)
                           AND d.status = 'DRAFT' AND d.trashed_at IS NOT NULL)
                 """,
             params,
