@@ -52,6 +52,7 @@ def run(verify_only: bool) -> None:
                                user=username, password=password, dbname="dispatch")
     try:
         with mysql.cursor() as source:
+            source.execute("SET time_zone = '+00:00'")
             source.execute("START TRANSACTION WITH CONSISTENT SNAPSHOT")
         with postgres.transaction():
             with postgres.cursor() as target, mysql.cursor() as source:
