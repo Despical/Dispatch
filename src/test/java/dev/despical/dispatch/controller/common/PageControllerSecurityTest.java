@@ -79,6 +79,9 @@ class PageControllerSecurityTest {
             .andExpect(status().isOk())
             .andExpect(view().name("home"))
             .andExpect(content().string(containsString("name=\"description\"")))
+            .andExpect(content().string(containsString("property=\"og:title\" content=\"Dispatch\"")))
+            .andExpect(content().string(containsString("property=\"og:image\" content=\"https://mail.despical.dev/images/dispatch-social.png\"")))
+            .andExpect(content().string(containsString("content=\"#8b5cf6\" name=\"theme-color\"")))
             .andExpect(content().string(containsString("rel=\"canonical\"")))
             .andExpect(content().string(containsString("src=\"/analytics.js\"")))
             .andExpect(content().string(containsString("src=\"/images/dispatch-live.png\"")))
@@ -114,6 +117,12 @@ class PageControllerSecurityTest {
         mvc.perform(get("/images/dispatch-live.png"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("image/png"));
+        mvc.perform(get("/images/dispatch-social.png"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("image/png"));
+        mvc.perform(get("/preferences-bootstrap.js"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("dispatch-theme")));
         mvc.perform(get("/analytics.js"))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("G-27S55TMZXW")));

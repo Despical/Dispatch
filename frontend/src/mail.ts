@@ -7,6 +7,7 @@ import { initSecurityActivity } from './security-activity';
 import { initQuickResponses } from './quick-responses';
 import { initMailExtras, type ExtraView } from './mail-extras';
 import { readMailLocation, mailLocationUrl } from './mail-navigation';
+import { currentLanguage, translate } from './preferences';
 
 type Account = { id: number; displayName: string; email: string; authProvider: 'GOOGLE' | 'PASSWORD'; syncStatus: string | null; syncError: string | null; lastSyncAt: string | null; active: boolean };
 type Folder = { id: number; accountId: number; name: string; unreadCount: number };
@@ -132,7 +133,7 @@ function renderDocumentTitle(): void {
     : state.drafts ? draftTotal
       : state.extra || inboxCountAccountId !== state.accountId || inboxCountFolderId !== state.folderId ? 0
         : inboxUnreadCount ?? 0;
-  document.title = `${label}${count > 0 ? ` (${count})` : ''}${account ? ` | ${account.email}` : ''} | Dispatch`;
+  document.title = `${translate(label)}${count > 0 ? ` (${count})` : ''}${account ? ` | ${account.email}` : ''} | Dispatch`;
 }
 
 async function refreshInboxUnreadCount(): Promise<void> {
@@ -179,9 +180,9 @@ function renderTrashCount(): void {
 }
 
 function errorMessage(error: unknown): string {
-  if (error instanceof ApiError) return error.message;
-  if (error instanceof Error && error.message) return error.message;
-  return 'The operation could not be completed.';
+  if (error instanceof ApiError) return translate(error.message);
+  if (error instanceof Error && error.message) return translate(error.message);
+  return translate('The operation could not be completed.');
 }
 
 function alert(message: string): void {
@@ -239,15 +240,17 @@ export function formatMessageDate(value: string, now = new Date()): string {
   if (!value) return '';
   const item = new Date(value);
   if (Number.isNaN(item.getTime())) return '';
-  const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).format(item);
+  const locale = currentLanguage() === 'en' ? 'en-GB' : currentLanguage();
+  const time = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', hour12: false }).format(item);
   if (item.toDateString() === now.toDateString()) return time;
   const sevenDaysAgo = new Date(now);
   sevenDaysAgo.setDate(now.getDate() - 7);
   if (item <= now && item > sevenDaysAgo) {
-    const weekday = new Intl.DateTimeFormat('en', { weekday: 'short' }).format(item);
+    const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(item);
     return `${time} ${weekday}`;
   }
-  return `${String(item.getDate()).padStart(2, '0')}.${String(item.getMonth() + 1).padStart(2, '0')}.${item.getFullYear()}`;
+  if (locale === 'en-GB') return `${String(item.getDate()).padStart(2, '0')}.${String(item.getMonth() + 1).padStart(2, '0')}.${item.getFullYear()}`;
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(item);
 }
 
 export function messageContentUrl(id: number, externalImages = false, original = false): string {
@@ -1036,7 +1039,7 @@ function renderDetail(): void {
   $('[data-detail-from-name]').textContent = sender.name;
   $('[data-detail-from-address]').textContent = sender.address ? `<${sender.address}>` : '';
   $('[data-detail-to]').textContent = `To: ${detail.recipients}`;
-  $('[data-detail-date]').textContent = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(detail.receivedAt));
+  $('[data-detail-date]').textContent = new Intl.DateTimeFormat(currentLanguage(), { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(detail.receivedAt));
   $('[data-sender-avatar]').textContent = initials(detail.fromAddress);
   $('[data-toggle-star]').classList.toggle('hidden',!canOrganize(detail.accountId));
   document.querySelectorAll<HTMLElement>('[data-reply],[data-reply-all],[data-forward]').forEach(button=>button.classList.toggle('hidden',sharedPermissions(detail.accountId)?.canSend===false));
@@ -1456,6 +1459,13 @@ export function applyAccountAvailability(available: boolean): void {
 }
 
 export async function initMail(): Promise<void> {
+  document.addEventListener('dispatch:languagechange', () => {
+    renderDocumentTitle();
+    renderMessages();
+    if (state.detail) $('[data-detail-date]').textContent = new Intl.DateTimeFormat(currentLanguage(), {
+      dateStyle: 'medium', timeStyle: 'short'
+    }).format(new Date(state.detail.receivedAt));
+  });
   composeAccountPicker = initComposeAccountPicker($('[data-compose-account-picker]'));
   accountOrder = initAccountOrder($('[data-account-list]'), $('[data-account-order-status]'), {
     save: async accountIds => {

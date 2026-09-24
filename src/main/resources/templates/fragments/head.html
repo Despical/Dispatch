@@ -3,9 +3,25 @@
 <head th:fragment="head(title, description, canonicalPath)">
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <meta content="dark" name="color-scheme">
+    <meta content="dark light" name="color-scheme">
+    <meta content="#8b5cf6" name="theme-color">
+    <script th:src="@{/preferences-bootstrap.js}"></script>
     <title th:text="${title} + ' | Dispatch'">Dispatch</title>
     <meta th:if="${description != null}" name="description" th:content="${description}">
+    <meta th:if="${canonicalPath != null}" property="og:type" content="website">
+    <meta th:if="${canonicalPath != null}" property="og:site_name" content="Dispatch">
+    <meta th:if="${canonicalPath != null}" property="og:locale" content="en_US">
+    <meta th:if="${canonicalPath != null}" property="og:title" th:content="${canonicalPath == '/' ? 'Dispatch' : title + ' | Dispatch'}">
+    <meta th:if="${canonicalPath != null}" property="og:description" th:content="${description}">
+    <meta th:if="${canonicalPath != null}" property="og:url" th:content="${'https://mail.despical.dev' + canonicalPath}">
+    <meta th:if="${canonicalPath != null}" property="og:image" content="https://mail.despical.dev/images/dispatch-social.png">
+    <meta th:if="${canonicalPath != null}" property="og:image:alt" content="Dispatch mail icon">
+    <meta th:if="${canonicalPath != null}" property="og:image:width" content="512">
+    <meta th:if="${canonicalPath != null}" property="og:image:height" content="512">
+    <meta th:if="${canonicalPath != null}" name="twitter:card" content="summary">
+    <meta th:if="${canonicalPath != null}" name="twitter:title" th:content="${canonicalPath == '/' ? 'Dispatch' : title + ' | Dispatch'}">
+    <meta th:if="${canonicalPath != null}" name="twitter:description" th:content="${description}">
+    <meta th:if="${canonicalPath != null}" name="twitter:image" content="https://mail.despical.dev/images/dispatch-social.png">
     <link th:if="${canonicalPath != null}" rel="canonical" th:href="${'https://mail.despical.dev' + canonicalPath}">
     <meta th:if="${canonicalPath == null}" name="robots" content="noindex, nofollow">
     <link rel="icon" th:href="@{/favicon.svg(v=2)}" type="image/svg+xml">

@@ -3,14 +3,18 @@ import './public.css';
 import './public-shell.css';
 import './home.css';
 import './status.css';
+import './preferences.css';
+import './light.css';
 import { initBootstrap, initLogin } from './auth';
 import { initMail } from './mail';
 import { initPublicPage } from './public';
 import { initStatusPage } from './status';
 import { initAdminShell, initAdminUsers } from './admin';
 import { initCookieNotice } from './cookie-notice';
+import { initPreferences } from './preferences';
 
 const page = document.body.dataset.page;
+await initPreferences();
 if (page === 'home' || page === 'public' || page === 'login' || page === 'bootstrap') initCookieNotice();
 if (page === 'login') initLogin();
 if (page === 'bootstrap') initBootstrap();
