@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.flywaydb:flyway-mysql:13.0.0'
+        classpath 'org.flywaydb:flyway-mysql:13.7.0'
     }
 }
 
@@ -40,8 +40,8 @@ configurations {
 ext {
     mapstructVersion = '1.6.3'
     jjwtVersion = '0.13.0'
-    greenMailVersion = '2.1.8'
-    testcontainersVersion = '1.21.3'
+    greenMailVersion = '2.1.14'
+    testcontainersVersion = '1.21.4'
 }
 
 dependencies {
@@ -65,10 +65,10 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.82'
-    implementation 'commons-codec:commons-codec:1.19.0'
-    implementation 'org.jsoup:jsoup:1.23.1'
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.3'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.86'
+    implementation 'commons-codec:commons-codec:1.22.1'
+    implementation 'org.jsoup:jsoup:1.23.2'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
