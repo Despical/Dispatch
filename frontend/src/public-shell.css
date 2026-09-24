@@ -236,6 +236,9 @@
     font-size: 14px;
     line-height: 1.7;
 }
+.public-footer-bottom button { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.public-footer-bottom button:hover { color: #d6c6f3; }
+.public-footer-bottom button:focus-visible { outline: 2px solid #b8a1ff; outline-offset: 4px; }
 
 @media (max-width: 900px) {
     .public-header-inner { gap: 22px; }

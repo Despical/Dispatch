@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Administrators')}"></head>
+<head th:replace="~{fragments/head :: head('Administrators', null, null)}"></head>
 <body class="admin-page" data-page="admin-users" th:attr="data-admin-id=${publicAdminId}">
 <header th:replace="~{fragments/admin-shell :: header}"></header>
 <div class="admin-shell">

@@ -1,18 +1,18 @@
-const acceptedKey = 'dispatch.cookie-notice.accepted';
-const deferredKey = 'dispatch.cookie-notice.deferred';
+const consentKey = 'dispatch.analytics-consent.v1';
 
-function stored(kind: 'local' | 'session', key: string): boolean {
-  try { return (kind === 'local' ? localStorage : sessionStorage).getItem(key) === 'yes'; }
-  catch { return false; }
+function choice(): string | null {
+  try { return localStorage.getItem(consentKey); }
+  catch { return null; }
 }
 
-function remember(kind: 'local' | 'session', key: string): void {
-  try { (kind === 'local' ? localStorage : sessionStorage).setItem(key, 'yes'); }
-  catch { /* The notice can still be dismissed when storage is unavailable. */ }
+function saveChoice(value: 'accepted' | 'essential'): void {
+  try { localStorage.setItem(consentKey, value); }
+  catch { /* The choice still applies to this page when storage is unavailable. */ }
+  window.dispatchEvent(new Event(value === 'accepted' ? 'dispatch:analytics-accepted' : 'dispatch:analytics-denied'));
 }
 
-export function initCookieNotice(): void {
-  if (stored('local', acceptedKey) || stored('session', deferredKey) || document.querySelector('.cookie-notice')) return;
+function showNotice(): void {
+  if (document.querySelector('.cookie-notice')) return;
 
   const notice = document.createElement('aside');
   notice.className = 'cookie-notice';
@@ -22,26 +22,32 @@ export function initCookieNotice(): void {
 
   const title = document.createElement('h2');
   title.id = 'cookie-notice-title';
-  title.textContent = 'Essential cookies';
+  title.textContent = 'Cookies and analytics';
   const description = document.createElement('p');
   description.id = 'cookie-notice-description';
-  description.textContent = 'Dispatch uses cookies to keep you signed in and protect requests. Signing in requires them. We do not use advertising cookies.';
+  description.textContent = 'Essential cookies keep sign-in and requests secure. With your permission, Google Analytics measures visits to public pages. You can continue with essential cookies only.';
   const actions = document.createElement('div');
   actions.className = 'cookie-notice-actions';
   const policy = document.createElement('a');
   policy.href = '/privacy-policy#cookies';
   policy.textContent = 'Privacy policy';
-  const later = document.createElement('button');
-  later.type = 'button';
-  later.className = 'cookie-notice-later';
-  later.textContent = 'Later';
-  later.addEventListener('click', () => { remember('session', deferredKey); notice.remove(); });
+  const essential = document.createElement('button');
+  essential.type = 'button';
+  essential.className = 'cookie-notice-later';
+  essential.textContent = 'Essential only';
+  essential.addEventListener('click', () => { saveChoice('essential'); notice.remove(); });
   const accept = document.createElement('button');
   accept.type = 'button';
   accept.className = 'cookie-notice-accept';
-  accept.textContent = 'Accept cookies';
-  accept.addEventListener('click', () => { remember('local', acceptedKey); notice.remove(); });
-  actions.append(policy, later, accept);
+  accept.textContent = 'Accept analytics';
+  accept.addEventListener('click', () => { saveChoice('accepted'); notice.remove(); });
+  actions.append(policy, essential, accept);
   notice.append(title, description, actions);
   document.body.append(notice);
+}
+
+export function initCookieNotice(): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-cookie-settings]')
+    .forEach(button => button.addEventListener('click', showNotice));
+  if (choice() === null) showNotice();
 }

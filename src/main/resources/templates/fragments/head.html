@@ -1,12 +1,16 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="head(title)">
+<head th:fragment="head(title, description, canonicalPath)">
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta content="dark" name="color-scheme">
     <title th:text="${title} + ' | Dispatch'">Dispatch</title>
+    <meta th:if="${description != null}" name="description" th:content="${description}">
+    <link th:if="${canonicalPath != null}" rel="canonical" th:href="${'https://mail.despical.dev' + canonicalPath}">
+    <meta th:if="${canonicalPath == null}" name="robots" content="noindex, nofollow">
     <link rel="icon" th:href="@{/favicon.svg(v=2)}" type="image/svg+xml">
     <link rel="stylesheet" th:href="@{/assets/app.css}">
+    <script defer th:if="${canonicalPath != null}" th:src="@{/analytics.js}"></script>
     <script defer th:src="@{/assets/app.js}" type="module"></script>
 </head>
 </html>

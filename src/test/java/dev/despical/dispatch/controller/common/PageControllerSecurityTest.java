@@ -18,6 +18,7 @@
 package dev.despical.dispatch.controller.common;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -77,6 +78,9 @@ class PageControllerSecurityTest {
         mvc.perform(get("/"))
             .andExpect(status().isOk())
             .andExpect(view().name("home"))
+            .andExpect(content().string(containsString("name=\"description\"")))
+            .andExpect(content().string(containsString("rel=\"canonical\"")))
+            .andExpect(content().string(containsString("src=\"/analytics.js\"")))
             .andExpect(content().string(containsString("src=\"/images/dispatch-live.png\"")))
             .andExpect(content().string(containsString("href=\"/features\"")))
             .andExpect(content().string(containsString("href=\"/security\"")))
@@ -110,6 +114,19 @@ class PageControllerSecurityTest {
         mvc.perform(get("/images/dispatch-live.png"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("image/png"));
+        mvc.perform(get("/analytics.js"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("G-27S55TMZXW")));
+        mvc.perform(get("/robots.txt"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Sitemap: https://mail.despical.dev/sitemap.xml")));
+        mvc.perform(get("/sitemap.xml"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("https://mail.despical.dev/features")));
+        mvc.perform(get("/login"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("name=\"robots\" content=\"noindex, nofollow\"")))
+            .andExpect(content().string(not(containsString("/analytics.js"))));
         mvc.perform(get("/mail"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/login"));

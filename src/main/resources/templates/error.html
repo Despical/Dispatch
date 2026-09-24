@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Request error')}"></head>
+<head th:replace="~{fragments/head :: head('Request error', null, null)}"></head>
 <body class="error-page">
 <main class="error-card">
     <div class="error-code" th:text="${status ?: 500}">404</div>

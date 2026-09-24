@@ -94,6 +94,9 @@ public class SecurityConfig {
                             "/images/dispatch-live.png",
                             "/images/dispatch-hero.png",
                             "/favicon.svg",
+                            "/analytics.js",
+                            "/robots.txt",
+                            "/sitemap.xml",
                             "/oauth/google/callback",
                             "/error")
                         .permitAll()
@@ -115,10 +118,13 @@ public class SecurityConfig {
                             csp ->
                                 csp.policyDirectives(
                                     "default-src 'self'; script-src"
-                                        + " 'self'; style-src 'self'"
-                                        + " 'unsafe-inline'; img-src"
-                                        + " 'self' data:; font-src"
-                                        + " 'self'; connect-src 'self';"
+                                        + " 'self' https://www.googletagmanager.com;"
+                                        + " style-src 'self' 'unsafe-inline';"
+                                        + " img-src 'self' data: https://www.google-analytics.com"
+                                        + " https://region1.google-analytics.com; font-src"
+                                        + " 'self'; connect-src 'self'"
+                                        + " https://www.google-analytics.com"
+                                        + " https://region1.google-analytics.com;"
                                         + " frame-src 'self';"
                                         + " object-src 'none'; base-uri"
                                         + " 'none'; form-action 'self';"

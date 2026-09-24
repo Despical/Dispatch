@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /bootstrap
+Disallow: /login
+Disallow: /mail
+
+Sitemap: https://mail.despical.dev/sitemap.xml

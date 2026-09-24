@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Privacy policy')}"></head>
+<head th:replace="~{fragments/head :: head('Privacy policy', 'Read how Dispatch processes account details, connected mailbox data, cookies, analytics choices, and security information.', '/privacy-policy')}"></head>
 <body class="public-page" data-page="public">
 <header th:replace="~{fragments/public :: header}"></header>
 <main id="main-content">
@@ -8,7 +8,7 @@
         <h1>Privacy policy</h1>
         <p>How Dispatch processes account information, email content, and service data.</p>
         <div class="legal-meta">Last updated
-            <time datetime="2026-09-22">September 22, 2026</time>
+            <time datetime="2026-09-24">September 24, 2026</time>
         </div>
     </div>
     <div class="legal-layout public-container">
@@ -64,8 +64,9 @@
                     messages, save drafts, send email at your request, and respond to support inquiries. Security events
                     and operational information help us prevent unauthorized access and investigate service
                     problems.</p>
-                <p>Dispatch does not include advertising trackers or third-party analytics in its public pages or mail
-                    interface. Mail content is used to provide the mailbox features you request.</p>
+                <p>With your permission, Google Analytics helps us understand visits to the public pages. It is not
+                    loaded in the mail workspace or administrator pages. Mail content is used to provide the mailbox
+                    features you request, not for analytics or advertising.</p>
             </section>
             <section class="legal-section" id="sharing">
                 <h2>04. Connections and sharing</h2>
@@ -91,7 +92,14 @@
                 <p>Dispatch uses essential cookies to keep you signed in and protect requests against forgery. Initial
                     administrator setup also uses a short-lived setup cookie. These cookies support authentication and
                     security; they are not used for advertising. Blocking them can prevent sign-in and mailbox actions
-                    from working. Your cookie notice choice is stored in this browser.</p>
+                    from working.</p>
+                <p>Google Analytics (measurement ID G-27S55TMZXW) runs on public pages only if you accept analytics.
+                    It can receive the page address, browser and device information, and network information such as
+                    your IP address. Google may use analytics cookies to recognize visits. Choosing Essential only
+                    leaves the Google tag unloaded; advertising consent remains disabled. Your choice is stored in this
+                    browser and can be changed through Cookie settings in the footer. See
+                    <a href="https://policies.google.com/privacy" rel="noopener noreferrer" target="_blank">Google's privacy policy</a>
+                    for Google's handling of this data.</p>
                 <p>User and administrator sign-in requires a password and authenticator verification or a recovery code.
                     Mailbox credentials and authenticator secrets are encrypted in storage; account passwords and
                     recovery codes are hashed. Message content and attachments are stored on the installation's server
