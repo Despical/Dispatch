@@ -10,6 +10,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 it('restores the signed-in profile in the public header after an expired access cookie', async () => {
+  document.querySelector('.public-header-signin')?.classList.add('hidden');
   let profileRequests = 0;
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
     const path = String(input);
@@ -29,4 +30,11 @@ it('restores the signed-in profile in the public header after an expired access 
   expect(document.querySelector('[data-public-initials]')?.textContent).toBe('AM');
   expect(document.querySelector('[data-public-name]')?.textContent).toBe('Alex Morgan');
   expect(document.querySelector('[data-public-role]')?.textContent).toBe('Administrator');
+});
+
+it('does not request a profile when the server rendered a signed-out header', () => {
+  const fetch = vi.fn();
+  vi.stubGlobal('fetch', fetch);
+  initPublicPage();
+  expect(fetch).not.toHaveBeenCalled();
 });

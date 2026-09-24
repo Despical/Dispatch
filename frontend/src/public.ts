@@ -6,6 +6,7 @@ async function initPublicProfile(): Promise<void> {
     const profile = document.querySelector<HTMLAnchorElement>('[data-public-profile]');
     const signIn = document.querySelector<HTMLAnchorElement>('.public-header-signin');
     if (!profile || !signIn) return;
+    if (profile.classList.contains('hidden') && !signIn.classList.contains('hidden')) return;
     const showSignIn = (): void => {
         profile.classList.add('hidden');
         signIn.classList.remove('hidden');
