@@ -96,6 +96,29 @@ describe('mail interactions with the real mail template', () => {
     element<HTMLButtonElement>('[data-unified]').click(); await settle();
     expect(element('[data-trash-count]').textContent).toBe('');
   });
+  it('updates the browser title from the active mailbox and its unread count', async () => {
+    let workUnread = 5;
+    mockedApi.mockImplementation(async (path: string, options?: RequestInit) => {
+      if (path.startsWith('/api/mail/messages?') && path.includes('unread=true'))
+        return { content: [], page: 0, totalPages: 1, totalElements: path.includes('accountId=1') ? 3 : path.includes('accountId=2') ? workUnread : 8 };
+      if (path === '/api/mail/messages/101/read' && options?.method === 'PATCH') { workUnread++; return undefined; }
+      if (path.startsWith('/api/mail/trash/count')) return { count: 4 };
+      if (path === '/api/mail/outbound/drafts/count') return { count: 2 };
+      return defaultResponse(path);
+    });
+    element<HTMLElement>('[data-account="1"]').click(); await settle();
+    expect(document.title).toBe('Inbox (3) | personal@example.com | Dispatch');
+    element<HTMLElement>('[data-account="2"]').click(); await settle();
+    expect(document.title).toBe('Inbox (5) | work@example.com | Dispatch');
+    element<HTMLButtonElement>('[data-message-id="101"] .message-read-action').click(); await settle();
+    expect(document.title).toBe('Inbox (6) | work@example.com | Dispatch');
+    element<HTMLButtonElement>('[data-trash]').click(); await settle();
+    expect(document.title).toBe('Trash (4) | work@example.com | Dispatch');
+    element<HTMLButtonElement>('[data-unified]').click(); await settle();
+    expect(document.title).toBe('Inbox (8) | Dispatch');
+    element<HTMLButtonElement>('[data-drafts]').click(); await settle();
+    expect(document.title).toBe('Drafts (2) | Dispatch');
+  });
   it('opens the first account trash and normalizes a direct trash URL', async () => {
     history.replaceState(null, '', '/mail/trash');
     window.dispatchEvent(new PopStateEvent('popstate')); await settle();

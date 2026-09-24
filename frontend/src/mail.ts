@@ -77,6 +77,11 @@ let originalDraftHtml: { html: string; text: string } | null = null;
 let trashItems: TrashItem[] = [];
 let visibleDrafts: DraftSummary[] = [];
 let trashCountRequest = 0;
+let titleCountRequest = 0;
+let inboxUnreadCount: number | null = null;
+let inboxCountAccountId: number | null = null;
+let inboxCountFolderId: number | null = null;
+let draftTotal = 0;
 let cannedRequest = 0;
 let mailExtras: ReturnType<typeof initMailExtras>;
 let mailSharing: ReturnType<typeof initMailSharing> | undefined;
@@ -114,6 +119,50 @@ function setMailboxTitle(title: string, accountEmail?: string): void {
   account.textContent = accountEmail ?? '';
   account.classList.toggle('hidden', !accountEmail);
   account.closest('.pane-toolbar')?.classList.toggle('has-account-title', Boolean(accountEmail));
+  renderDocumentTitle();
+}
+
+function renderDocumentTitle(): void {
+  const account = [...state.accounts, ...(mailSharing?.accounts() ?? [])].find(item => item.id === state.accountId);
+  const label = state.extra === 'contacts' ? 'Contacts' : state.extra === 'sent' ? 'Sent'
+    : state.trash ? 'Trash' : state.drafts ? 'Drafts'
+      : state.folderId === null ? 'Inbox'
+        : state.folders.get(state.accountId!)?.find(folder => folder.id === state.folderId)?.name ?? 'Inbox';
+  const count = state.trash ? (trashCountAccountId === state.accountId ? trashTotal : 0)
+    : state.drafts ? draftTotal
+      : state.extra || inboxCountAccountId !== state.accountId || inboxCountFolderId !== state.folderId ? 0
+        : inboxUnreadCount ?? 0;
+  document.title = `${label}${count > 0 ? ` (${count})` : ''}${account ? ` | ${account.email}` : ''} | Dispatch`;
+}
+
+async function refreshInboxUnreadCount(): Promise<void> {
+  const request = ++titleCountRequest;
+  const accountId = state.accountId;
+  const folderId = state.folderId;
+  if (state.extra || state.trash || state.drafts) {
+    inboxUnreadCount = null;
+    renderDocumentTitle();
+    return;
+  }
+  if (inboxCountAccountId !== accountId || inboxCountFolderId !== folderId) {
+    inboxUnreadCount = null;
+    renderDocumentTitle();
+  }
+  try {
+    const params = new URLSearchParams({ page: '0', size: '1', unread: 'true', trashed: 'false' });
+    if (accountId !== null) params.set('accountId', String(accountId));
+    if (folderId !== null) params.set('folderId', String(folderId));
+    const result = await api<Page<Summary>>(`/api/mail/messages?${params}`);
+    if (request !== titleCountRequest || state.accountId !== accountId || state.folderId !== folderId || state.extra || state.trash || state.drafts) return;
+    inboxUnreadCount = result.totalElements;
+    inboxCountAccountId = accountId;
+    inboxCountFolderId = folderId;
+    renderDocumentTitle();
+  } catch {
+    if (request !== titleCountRequest || state.accountId !== accountId || state.folderId !== folderId) return;
+    inboxUnreadCount = null;
+    renderDocumentTitle();
+  }
 }
 function canOrganize(id: number) { return sharedPermissions(id)?.canOrganize ?? true; }
 function canDelete(id: number) { return sharedPermissions(id)?.canDelete ?? true; }
@@ -285,6 +334,7 @@ async function loadAccounts(showLoading = true): Promise<void> {
 
 function renderAccounts(): void {
   renderTrashCount();
+  renderDocumentTitle();
   if (accountOrder?.busy()) { pendingAccountRender = true; return; }
   pendingAccountRender = false;
   const list = $<HTMLElement>('[data-account-list]'); list.replaceChildren();
@@ -349,6 +399,7 @@ function selectTrash(): void {
 
 async function loadMessages(): Promise<void> {
   void refreshTrashCount();
+  void refreshInboxUnreadCount();
   const request = ++mailboxRequest;
   if (state.extra) { await mailExtras.load(state.query,state.page); return; }
   const list = $<HTMLElement>('[data-message-list]'), loading = ensureMessageLoading(list);
@@ -419,7 +470,11 @@ async function refreshDraftCount(): Promise<void> {
   const request = ++draftCountRequest;
   try {
     const result = await api<{ count: number }>('/api/mail/outbound/drafts/count');
-    if (request === draftCountRequest) $('[data-draft-count]').textContent = result.count > 0 ? String(result.count) : '';
+    if (request === draftCountRequest) {
+      draftTotal = result.count;
+      $('[data-draft-count]').textContent = result.count > 0 ? String(result.count) : '';
+      renderDocumentTitle();
+    }
   } catch { /* Keep the last known count when offline. */ }
 }
 
@@ -435,6 +490,7 @@ async function refreshTrashCount(): Promise<void> {
     trashTotal = 0;
     trashCountAccountId = null;
     renderTrashCount();
+    renderDocumentTitle();
     updatePanePrimaryAction();
     return;
   }
@@ -444,12 +500,14 @@ async function refreshTrashCount(): Promise<void> {
     trashTotal = result.count;
     trashCountAccountId = accountId;
     renderTrashCount();
+    renderDocumentTitle();
     updatePanePrimaryAction();
   } catch {
     if (request !== trashCountRequest || state.accountId !== accountId) return;
     trashTotal = 0;
     trashCountAccountId = null;
     renderTrashCount();
+    renderDocumentTitle();
     updatePanePrimaryAction();
   }
 }
@@ -734,6 +792,7 @@ async function toggleRead(message: Summary, item: HTMLElement, control: HTMLButt
   if (state.detail?.id === message.id) state.detail.read = read;
   try {
     await api<void>(`/api/mail/messages/${message.id}/read`, { method: 'PATCH', body: JSON.stringify({ value: read }) });
+    void refreshInboxUnreadCount();
     if (state.filter === 'unread' && read) await loadMessages();
   } catch (error) {
     message.read = previous;
@@ -922,7 +981,7 @@ async function markSelectionUnread(): Promise<void> {
     await Promise.all(messageIds.map(id => api<void>(`/api/mail/messages/${id}/read`, { method: 'PATCH', body: JSON.stringify({ value: false }) })));
     state.messages.filter(message => messageIds.includes(message.id)).forEach(message => { message.read = false; });
     if (state.detail && messageIds.includes(state.detail.id)) state.detail.read = false;
-    selectedMessageIds.clear(); renderMessages();
+    selectedMessageIds.clear(); renderMessages(); void refreshInboxUnreadCount();
   } catch (error) { alert(errorMessage(error)); }
 }
 
@@ -964,6 +1023,7 @@ async function openMessage(id: number, updateUrl=true): Promise<void> {
     if (!state.detail.read && canOrganize(detail.accountId)) {
       await api<void>(`/api/mail/messages/${id}/read`, { method: 'PATCH', body: JSON.stringify({ value: true }) });
       state.detail.read = true; const summary = state.messages.find(item => item.id === id); if (summary) summary.read = true; renderMessages();
+      void refreshInboxUnreadCount();
     }
   } catch (error) { alert(errorMessage(error)); }
 }
@@ -1458,7 +1518,13 @@ export async function initMail(): Promise<void> {
   $('[data-toggle-star]').addEventListener('click', async event => { if (!state.detail) return; const summary = state.messages.find(message => message.id === state.detail?.id); if (summary) await toggleStarred(summary, event.currentTarget as HTMLButtonElement); });
   $('[data-mark-unread]').addEventListener('click', async () => {
     closeDetailMenu(); if (!state.detail) return;
-    try { await api<void>(`/api/mail/messages/${state.detail.id}/read`, { method: 'PATCH', body: JSON.stringify({ value: false }) }); state.detail.read = false; renderMessages(); }
+    try {
+      await api<void>(`/api/mail/messages/${state.detail.id}/read`, { method: 'PATCH', body: JSON.stringify({ value: false }) });
+      state.detail.read = false;
+      const summary = state.messages.find(message => message.id === state.detail?.id);
+      if (summary) summary.read = false;
+      renderMessages(); void refreshInboxUnreadCount();
+    }
     catch (error) { alert(errorMessage(error)); }
   });
   $('[data-load-images]').addEventListener('click', () => {
