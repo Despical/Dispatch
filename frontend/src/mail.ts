@@ -10,7 +10,7 @@ import { readMailLocation, mailLocationUrl } from './mail-navigation';
 import { currentLanguage, translate } from './preferences';
 
 type Account = { id: number; displayName: string; email: string; authProvider: 'GOOGLE' | 'PASSWORD'; syncStatus: string | null; syncError: string | null; lastSyncAt: string | null; active: boolean };
-type Folder = { id: number; accountId: number; name: string; unreadCount: number };
+type Folder = { id: number; accountId: number; name: string; unreadCount: number; specialUse: string | null };
 type Summary = { id: number; accountId: number; accountName: string; subject: string; fromAddress: string; preview: string; receivedAt: string; read: boolean; starred: boolean; pinned: boolean; hasAttachments: boolean };
 type Attachment = { id: number; filename: string; contentType: string; sizeBytes: number; scanStatus: string; scanDetail: string };
 type Detail = { id: number; accountId: number; accountName: string; subject: string; fromAddress: string; recipients: string; textBody: string; internetMessageId: string | null; referencesHeader: string | null; receivedAt: string; read: boolean; starred: boolean; pinned: boolean; attachments: Attachment[] };
@@ -309,8 +309,9 @@ function selectionCheckIcon(): SVGSVGElement {
   svg.append(path); return svg;
 }
 
-export function totalUnreadCount(folders: Array<{ unreadCount: number }>): number {
-  return folders.reduce((total, folder) => total + Math.max(0, folder.unreadCount), 0);
+export function totalUnreadCount(folders: Array<{ unreadCount: number; specialUse?: string | null }>): number {
+  return folders.reduce((total, folder) =>
+    total + (folder.specialUse === 'TRASH' || folder.specialUse === 'JUNK' ? 0 : Math.max(0, folder.unreadCount)), 0);
 }
 
 async function loadAccounts(showLoading = true): Promise<void> {

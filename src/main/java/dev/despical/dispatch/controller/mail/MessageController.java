@@ -81,7 +81,8 @@ public class MessageController {
                     folder.getId(),
                     folder.getAccount().getId(),
                     folder.getDisplayName(),
-                    folder.getUnreadCount()))
+                    folder.getUnreadCount(),
+                    folder.getSpecialUse()))
             .toList();
     }
 

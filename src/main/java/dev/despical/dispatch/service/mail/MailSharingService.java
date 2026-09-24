@@ -116,6 +116,8 @@ public class MailSharingService {
                         p.canView()
                             ? folders.findAllByAccountIdOrderByDisplayNameAsc(a.getId())
                             .stream()
+                            .filter(f -> !"TRASH".equals(f.getSpecialUse()) &&
+                                !"JUNK".equals(f.getSpecialUse()))
                             .mapToInt(f -> Math.max(0, f.getUnreadCount()))
                             .sum()
                             : 0);

@@ -6,6 +6,11 @@ import { applyAccountAvailability, ensureMessageLoading, formatMessageDate, mess
 describe('browser failure state', () => {
   it('shows a real aggregate unread count without rendering folder shortcuts', () => {
     expect(totalUnreadCount([{ unreadCount: 4 }, { unreadCount: 2 }, { unreadCount: 0 }])).toBe(6);
+    expect(totalUnreadCount([
+      { unreadCount: 0, specialUse: 'ALL' },
+      { unreadCount: 1, specialUse: 'TRASH' },
+      { unreadCount: 2, specialUse: 'JUNK' },
+    ])).toBe(0);
   });
 
   it('formats message dates by today, last week, and older mail', () => {

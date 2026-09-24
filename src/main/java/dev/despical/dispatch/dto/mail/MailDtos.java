@@ -62,7 +62,8 @@ public final class MailDtos {
     public record AccountOrderRequest(@NotNull List<@NotNull Long> accountIds) {
     }
 
-    public record FolderResponse(Long id, Long accountId, String name, int unreadCount) {
+    public record FolderResponse(Long id, Long accountId, String name, int unreadCount,
+                                 String specialUse) {
     }
 
     public record MessageSummary(
