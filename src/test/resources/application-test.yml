@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/dispatch_test
+    url: jdbc:postgresql://localhost:5432/dispatch_test
     username: test
     password: test
   jpa:

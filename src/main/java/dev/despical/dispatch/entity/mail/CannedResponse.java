@@ -41,6 +41,6 @@ public class CannedResponse extends BaseEntity {
     @Column(nullable = false, length = 120)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String bodyHtml;
 }

@@ -200,7 +200,7 @@ function controls(mobile = false): HTMLElement {
     const viewportWidth = Math.max(document.documentElement.clientWidth || window.innerWidth, 240);
     const viewportHeight = Math.max(document.documentElement.clientHeight || window.innerHeight, 240);
     const width = Math.min(Math.max(menu.scrollWidth, 180), viewportWidth - 24);
-    const desiredHeight = Math.min(menu.scrollHeight, 390, viewportHeight - 24);
+    const desiredHeight = Math.min(menu.scrollHeight + 4, 410, viewportHeight - 24);
     const below = viewportHeight - anchor.bottom - 12;
     const above = anchor.top - 12;
     const placeBelow = below >= desiredHeight || below >= above;

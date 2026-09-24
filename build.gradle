@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.flywaydb:flyway-mysql:13.0.0'
+        classpath 'org.flywaydb:flyway-database-postgresql:13.0.0'
     }
 }
 
@@ -57,7 +57,7 @@ dependencies {
 
     implementation 'org.eclipse.angus:angus-mail'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-    implementation 'org.flywaydb:flyway-mysql'
+    implementation 'org.flywaydb:flyway-database-postgresql'
 
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 
@@ -70,7 +70,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.23.1'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.3'
 
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'org.postgresql:postgresql'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     compileOnly 'org.projectlombok:lombok'
@@ -83,7 +83,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation platform("org.testcontainers:testcontainers-bom:${testcontainersVersion}")
     testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:mysql'
+    testImplementation 'org.testcontainers:postgresql'
     testImplementation "com.icegreen:greenmail-junit5:${greenMailVersion}"
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

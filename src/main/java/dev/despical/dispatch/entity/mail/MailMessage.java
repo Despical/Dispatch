@@ -76,13 +76,13 @@ public class MailMessage extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String recipients;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String textBody;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String sanitizedHtml;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String styledHtml;
 
     @Column(nullable = false)

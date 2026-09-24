@@ -55,7 +55,7 @@ import javax.crypto.spec.SecretKeySpec;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class AuthFlowIntegrationTest extends MySqlIntegrationTestSupport {
+class AuthFlowIntegrationTest extends PostgresIntegrationTestSupport {
 
     @Autowired
     MockMvc mvc;

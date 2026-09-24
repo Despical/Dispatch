@@ -45,7 +45,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-class MailSyncIntegrationTest extends MySqlIntegrationTestSupport {
+class MailSyncIntegrationTest extends PostgresIntegrationTestSupport {
 
     static GreenMail greenMail;
 

@@ -63,10 +63,10 @@ public class OutboundMessage extends BaseEntity {
     @Column(nullable = false, length = 1000)
     private String subject;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(columnDefinition = "TEXT")
     private String bodyHtml;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(columnDefinition = "TEXT")
     private String bodyText;
 
     @Column(length = 998)

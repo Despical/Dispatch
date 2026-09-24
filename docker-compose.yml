@@ -1,19 +1,17 @@
 name: dispatch
 
 services:
-  mysql:
-    image: mysql:8.4
+  postgres:
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: dispatch
-      MYSQL_USER: ${DATABASE_USERNAME}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+      POSTGRES_DB: dispatch
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -37,7 +35,7 @@ services:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DATABASE_URL: jdbc:mysql://mysql:3306/dispatch?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DATABASE_URL: jdbc:postgresql://postgres:5432/dispatch
       CLAMAV_HOST: clamav
       CLAMAV_PORT: 3310
       MAIL_STORAGE_PATH: /app/data/attachments
@@ -49,9 +47,7 @@ services:
     volumes:
       - attachment-data:/app/data/attachments
     depends_on:
-      mysql:
-        condition: service_healthy
-      clamav:
+      postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/actuator/health/readiness"]
@@ -89,7 +85,7 @@ services:
       - alertmanager-data:/alertmanager
 
 volumes:
-  mysql-data:
+  postgres-data:
   attachment-data:
   clamav-data:
   prometheus-data:

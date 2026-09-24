@@ -24,7 +24,7 @@ html[data-theme="light"] .preference-theme .preference-sun { opacity: 1; transfo
 .preference-globe { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .preference-language-trigger::-webkit-details-marker { display: none; }
 .preference-language-trigger::marker { content: ""; }
-.preference-language-menu { position: fixed; z-index: 120; min-width: 180px; max-width: calc(100vw - 24px); max-height: min(390px, calc(100dvh - 24px)); overflow-y: auto; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); box-shadow: 0 18px 48px #0005; }
+.preference-language-menu { position: fixed; z-index: 120; min-width: 180px; max-width: calc(100vw - 24px); max-height: min(410px, calc(100dvh - 24px)); overflow-y: auto; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); box-shadow: 0 18px 48px #0005; }
 .preference-language-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 14px; border: 0; background: none; color: var(--text); font-size: .875rem; text-align: left; cursor: pointer; }
 .preference-flag { width: 21px; height: 14px; flex: 0 0 auto; border: 1px solid color-mix(in srgb, var(--text) 20%, transparent); border-radius: 2px; overflow: hidden; }
 .public-page .preference-flag { stroke: none; }

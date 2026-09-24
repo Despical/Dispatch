@@ -15,7 +15,7 @@ Dispatch is a private, self-hosted webmail workspace for connecting existing mai
 * **Gmail and IMAP:** Connect Gmail through Google OAuth or use supported IMAP/SMTP accounts.
 * **Drafts and sending:** Save drafts and send through a durable outbox.
 * **Safer reading:** Render mail in an isolated pane and scan attachments with ClamAV.
-* **Self-hostable:** Run the application with your own MySQL database and mail providers.
+* **Self-hostable:** Run the application with your own PostgreSQL database and mail providers.
 
 ---
 
@@ -23,7 +23,7 @@ Dispatch is a private, self-hosted webmail workspace for connecting existing mai
 
 * Java 25
 * Node.js 22.17 or newer and pnpm 10
-* MySQL 8.4 or compatible
+* PostgreSQL 17 or compatible
 * ClamAV for attachment scanning
 
 ---

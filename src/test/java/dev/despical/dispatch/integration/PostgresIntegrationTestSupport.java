@@ -19,7 +19,7 @@ package dev.despical.dispatch.integration;
 
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -29,19 +29,19 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * Created at 21.09.2026
  */
 @Testcontainers(disabledWithoutDocker = true)
-public abstract class MySqlIntegrationTestSupport {
+public abstract class PostgresIntegrationTestSupport {
 
     @Container
-    static final MySQLContainer<?> MYSQL =
-        new MySQLContainer<>("mysql:8.4")
+    static final PostgreSQLContainer<?> POSTGRES =
+        new PostgreSQLContainer<>("postgres:17-alpine")
             .withDatabaseName("dispatch")
             .withUsername("dispatch")
             .withPassword("dispatch-test-password");
 
     @DynamicPropertySource
     static void database(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
-        registry.add("spring.datasource.username", MYSQL::getUsername);
-        registry.add("spring.datasource.password", MYSQL::getPassword);
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES::getUsername);
+        registry.add("spring.datasource.password", POSTGRES::getPassword);
     }
 }
