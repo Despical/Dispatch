@@ -18,6 +18,7 @@ services:
 
   clamav:
     image: clamav/clamav:1.5.1
+    profiles: ["scanner"]
     restart: unless-stopped
     volumes:
       - clamav-data:/var/lib/clamav
