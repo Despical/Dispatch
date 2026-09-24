@@ -4,7 +4,8 @@
     <a aria-label="Dispatch home" class="brand" href="/"><img alt="" class="brand-logo"
                                                               th:src="@{/favicon.svg(v=2)}"><span>Dispatch<span class="brand-dot">.</span></span></a>
     <div class="top-actions">
-        <button aria-label="Open admin navigation" class="icon-button mobile-only" data-open-admin-nav type="button">☰
+        <button aria-controls="admin-nav" aria-expanded="false" aria-label="Open admin navigation"
+                class="icon-button mobile-only" data-open-admin-nav type="button">☰
         </button>
         <button aria-expanded="false" aria-haspopup="menu" class="user-menu-button" data-account-menu type="button">
             <span class="avatar-button" th:text="${publicInitials}">BA</span>
@@ -16,7 +17,7 @@
         </button>
     </div>
 </header>
-<aside class="account-pane admin-sidebar" data-admin-nav th:fragment="sidebar(active)">
+<aside class="account-pane admin-sidebar" data-admin-nav id="admin-nav" th:fragment="sidebar(active)">
     <nav aria-label="Admin navigation" class="sidebar-primary">
         <a class="nav-item admin-nav-link" href="/mail">
             <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">

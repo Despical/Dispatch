@@ -5,6 +5,7 @@
 <header th:replace="~{fragments/admin-shell :: header}"></header>
 <div class="admin-shell">
     <aside th:replace="~{fragments/admin-shell :: sidebar('status')}"></aside>
+    <button aria-label="Close admin navigation" class="admin-nav-backdrop" data-close-admin-nav type="button"></button>
     <main class="admin-status-content" id="main-content">
         <div class="admin-status-heading"><h1>System status <span
             aria-label="Live host capacity, application dependencies and active alerts. Auto-refreshes every 30 seconds."

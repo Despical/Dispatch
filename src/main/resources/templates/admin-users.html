@@ -5,6 +5,7 @@
 <header th:replace="~{fragments/admin-shell :: header}"></header>
 <div class="admin-shell">
     <aside th:replace="~{fragments/admin-shell :: sidebar('users')}"></aside>
+    <button aria-label="Close admin navigation" class="admin-nav-backdrop" data-close-admin-nav type="button"></button>
     <main class="admin-status-content" id="main-content">
         <div class="admin-status-heading">
             <div><h1>Administrators</h1>

@@ -29,6 +29,13 @@ const $ = <T extends Element>(selector: string): T => {
   return element;
 };
 
+function closeMobileNav(focusToggle = false): void {
+  $<HTMLElement>('[data-account-pane]').classList.remove('open');
+  const toggle = $<HTMLButtonElement>('[data-open-nav]');
+  toggle.setAttribute('aria-expanded', 'false');
+  if (focusToggle) toggle.focus();
+}
+
 const state = {
   accounts: [] as Account[], folders: new Map<number, Folder[]>(), messages: [] as Summary[], detail: null as Detail | null,
   accountId: null as number | null, folderId: null as number | null, page: 0, pages: 0, filter: 'all', query: '',
@@ -83,6 +90,7 @@ function syncMailUrl(replace=false):void {
 }
 async function restoreMailLocation():Promise<void>{
   const revision=++navigationRevision,route=readMailLocation(new URL(window.location.href));
+  closeMobileNav();
   mailExtras.leave();hideMessageToast();selectedMessageIds.clear();clearDetail();
   const routeAccountId = route.view === 'trash' && route.accountId === null
     ? state.accounts[0]?.id ?? null : route.accountId;
@@ -320,7 +328,7 @@ function selectMailbox(accountId: number | null, folderId: number | null, title:
   updatePanePrimaryAction();
   clearDetail();
   syncMailUrl();renderAccounts(); updateEmptyStateCopy(); void loadMessages();
-  $<HTMLElement>('[data-account-pane]').classList.remove('open');
+  closeMobileNav();
 }
 
 function selectTrash(): void {
@@ -334,7 +342,7 @@ function selectTrash(): void {
   updatePanePrimaryAction();
   clearDetail();
   syncMailUrl();renderAccounts(); updateEmptyStateCopy(); void loadMessages();
-  $<HTMLElement>('[data-account-pane]').classList.remove('open');
+  closeMobileNav();
 }
 
 async function loadMessages(): Promise<void> {
@@ -392,7 +400,7 @@ function selectDrafts(): void {
   syncMailUrl();
   renderAccounts(); updatePanePrimaryAction(); updateEmptyStateCopy();
   void loadMessages(); void refreshDraftCount();
-  $('[data-account-pane]').classList.remove('open');
+  closeMobileNav();
 }
 
 function selectExtra(view: ExtraView): void {
@@ -402,7 +410,7 @@ function selectExtra(view: ExtraView): void {
   $<HTMLInputElement>('[data-search]').value = ''; selectedMessageIds.clear(); clearDetail();
   syncMailUrl();
   renderAccounts(); updatePanePrimaryAction(); updateEmptyStateCopy(); void loadMessages();
-  $('[data-account-pane]').classList.remove('open');
+  closeMobileNav();
 }
 
 async function refreshDraftCount(): Promise<void> {
@@ -1490,7 +1498,19 @@ export async function initMail(): Promise<void> {
     } catch (error) { alert(errorMessage(error)); }
     finally { refresh.classList.remove('syncing'); refresh.disabled = !readableAccounts(); }
   });
-  $('[data-open-nav]').addEventListener('click', () => $<HTMLElement>('[data-account-pane]').classList.toggle('open')); $('[data-back-list]').addEventListener('click', () => $<HTMLElement>('[data-reading-pane]').classList.remove('open'));
+  const mobileNavToggle = $<HTMLButtonElement>('[data-open-nav]');
+  mobileNavToggle.addEventListener('click', () => {
+    const open = $<HTMLElement>('[data-account-pane]').classList.toggle('open');
+    mobileNavToggle.setAttribute('aria-expanded', String(open));
+  });
+  $('[data-close-nav]').addEventListener('click', () => closeMobileNav(true));
+  $<HTMLElement>('[data-account-pane]').addEventListener('click', event => {
+    if ((event.target as Element).closest('[data-compose], [data-open-quick-responses], [data-open-mail-accounts]')) closeMobileNav();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && $<HTMLElement>('[data-account-pane]').classList.contains('open')) closeMobileNav(true);
+  });
+  $('[data-back-list]').addEventListener('click', () => $<HTMLElement>('[data-reading-pane]').classList.remove('open'));
   mailExtras = initMailExtras({filter:()=>state.filter,view:()=>state.extra, navigate:selectExtra, clearDetail, alert,
     resetSearch:()=>{state.query='';state.page=0;$<HTMLInputElement>('[data-search]').value='';},
     pagination:(page,pages,count)=>{state.page=page;state.pages=pages;state.messageTotal=count;renderPagination();},

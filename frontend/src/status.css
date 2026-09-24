@@ -79,13 +79,15 @@
 @media (max-width: 650px) { .admin-status-content { width: calc(100% - 30px); padding-top: 24px; } .admin-status-topbar { padding-inline: 16px; } .admin-status-heading { align-items: flex-start; flex-direction: column; } .admin-status-heading-actions { width: 100%; justify-content: space-between; } .admin-status-banner { flex-wrap: wrap; } .admin-status-banner time { width: 100%; margin-left: 31px; } .admin-status-resources { grid-template-columns: 1fr; } .admin-status-resource + .admin-status-resource { border-left: 0; border-top: 1px solid #2b3944; } .admin-status-section-head { align-items: flex-start; flex-direction: column; padding-block: 12px; } }
 
 /* Admin pages share the mail workspace shell, typography and color tokens. */
-.admin-page { overflow: hidden; background: var(--bg); color: var(--text); }
+.admin-page { height: 100vh; height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); color: var(--text); }
+.admin-page .topbar { flex: 0 0 4.25rem; }
 .admin-page .topbar { grid-template-columns: 15.5rem minmax(0, 1fr); }
 .admin-mail-search { color: var(--muted); text-decoration: none; font-size: var(--font-control); }
 .admin-mail-search:hover { color: var(--text); border-color: #4b3a73; }
 .admin-mail-search span { flex: 1; }
-.admin-shell { display: grid; grid-template-columns: 15.5rem minmax(0, 1fr); height: calc(100vh - 4.25rem); }
+.admin-shell { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 15.5rem minmax(0, 1fr); overflow: hidden; }
 .admin-sidebar { height: 100%; padding: .85rem .75rem; }
+.admin-nav-backdrop { display: none; }
 .admin-nav-link { text-decoration: none; }
 .admin-status-heading h1 { display: inline-flex; align-items: center; gap: .65rem; }
 .admin-status-info { position: relative; display: inline-grid; place-items: center; width: 1.1rem; height: 1.1rem; border: 1px solid var(--muted-2); border-radius: 50%; color: var(--muted); font-size: .7rem; font-style: normal; font-weight: 600; line-height: 1; cursor: default; }
@@ -134,4 +136,12 @@
 .admin-user-copy small { overflow: hidden; color: var(--muted); font-size: var(--font-small); text-overflow: ellipsis; white-space: nowrap; }
 .admin-user-actions { display: flex; gap: .55rem; }
 @media (max-width: 750px) { .admin-page .topbar { grid-template-columns: auto 1fr; } .admin-page .admin-mail-search { display: none; } .admin-shell { grid-template-columns: 1fr; } .admin-sidebar { position: fixed; z-index: 80; top: 4.25rem; bottom: 0; left: 0; width: min(17rem, 85vw); height: auto; transform: translateX(-100%); transition: transform .2s ease; box-shadow: 16px 0 40px #0008; } .admin-sidebar.is-open { transform: translateX(0); } .admin-status-content { padding: 1.35rem 1rem 3rem; } }
+@media (max-width: 750px) {
+    .admin-nav-backdrop { position: fixed; z-index: 75; inset: 4.25rem 0 0; display: block; width: 100%; padding: 0; border: 0; background: rgb(2 4 8 / .68); opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .admin-sidebar.is-open + .admin-nav-backdrop { opacity: 1; pointer-events: auto; }
+}
 @media (max-width: 650px) { .admin-status-resources { grid-template-columns: 1fr; } .admin-status-resource + .admin-status-resource { border-left: 0; border-top: 1px solid var(--line); } .admin-user-row { align-items: flex-start; flex-wrap: wrap; } .admin-user-actions { width: 100%; justify-content: flex-end; } }
+@media (max-width: 650px) {
+    .admin-status-info-tooltip { left: auto; right: -3rem; width: min(16rem, calc(100vw - 2rem)); max-width: none; transform: translateY(-.25rem); }
+    .admin-status-info:hover .admin-status-info-tooltip, .admin-status-info:focus-visible .admin-status-info-tooltip { transform: translateY(0); }
+}

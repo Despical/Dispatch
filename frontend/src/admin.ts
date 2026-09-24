@@ -20,10 +20,21 @@ export function initAdminShell(): void {
   }, true);
   document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
   const nav = $<HTMLElement>('[data-admin-nav]');
-  document.querySelector('[data-open-admin-nav]')?.addEventListener('click', () => nav.classList.toggle('is-open'));
-  document.addEventListener('pointerdown', event => {
-    if (!nav.contains(event.target as Node) && !(event.target as Element).closest('[data-open-admin-nav]')) nav.classList.remove('is-open');
-  }, true);
+  const navToggle = $<HTMLButtonElement>('[data-open-admin-nav]');
+  const closeNav = (focusToggle = false): void => {
+    nav.classList.remove('is-open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    if (focusToggle) navToggle.focus();
+  };
+  navToggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('is-open');
+    navToggle.setAttribute('aria-expanded', String(open));
+  });
+  $('[data-close-admin-nav]').addEventListener('click', () => closeNav(true));
+  document.addEventListener('click', event => {
+    if (nav.classList.contains('is-open') && !nav.contains(event.target as Node) && !navToggle.contains(event.target as Node)) closeNav();
+  });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && nav.classList.contains('is-open')) closeNav(true); });
   const logout = async (allDevices: boolean): Promise<void> => {
     menu.querySelectorAll<HTMLButtonElement>('button').forEach(button => { button.disabled = true; });
     try { await api(`/api/auth/logout?allDevices=${allDevices}`, { method: 'POST' }); window.location.assign('/login'); }

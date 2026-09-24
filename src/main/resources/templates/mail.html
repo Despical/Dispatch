@@ -13,7 +13,8 @@
         <kbd>/</kbd>
     </div>
     <div class="top-actions">
-        <button aria-label="Open folders" class="icon-button mobile-only" data-open-nav>☰</button>
+        <button aria-controls="mail-account-pane" aria-expanded="false" aria-label="Open folders"
+                class="icon-button mobile-only" data-open-nav type="button">☰</button>
         <button aria-expanded="false" aria-haspopup="menu" class="user-menu-button" data-account-menu>
             <span class="avatar-button" data-user-initials th:text="${adminInitials}">BA</span>
             <span class="user-menu-copy"><strong data-user-name th:text="${adminName}">Berke Akçen</strong><small
@@ -28,7 +29,7 @@
 <div class="global-alert hidden" data-global-alert role="alert"></div>
 
 <main class="mail-shell">
-    <aside class="account-pane" data-account-pane>
+    <aside class="account-pane" data-account-pane id="mail-account-pane">
         <nav aria-label="Mail navigation" class="sidebar-primary">
             <button class="nav-item active" data-unified>
                 <svg aria-hidden="true" class="nav-icon" viewBox="0 0 24 24">
@@ -96,6 +97,7 @@
             <span aria-live="polite" class="sr-only" data-account-order-status role="status"></span>
         </section>
     </aside>
+    <button aria-label="Close folders" class="mobile-nav-backdrop" data-close-nav type="button"></button>
 
     <section aria-label="Messages" class="message-pane">
         <div class="pane-toolbar">

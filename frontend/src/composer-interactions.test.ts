@@ -67,6 +67,20 @@ async function openReplyAll() {
 }
 
 describe('mail interactions with the real mail template', () => {
+  it('closes the mobile folder drawer from its backdrop and after navigation', async () => {
+    const toggle = element<HTMLButtonElement>('[data-open-nav]');
+    const pane = element<HTMLElement>('[data-account-pane]');
+    toggle.click();
+    expect(pane.classList.contains('open')).toBe(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    element<HTMLButtonElement>('[data-close-nav]').click();
+    expect(pane.classList.contains('open')).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    toggle.click();
+    element<HTMLButtonElement>('[data-trash]').click(); await settle();
+    expect(pane.classList.contains('open')).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  });
   it('shows a nonzero Trash count only while Trash is selected', async () => {
     mockedApi.mockImplementation(async (path: string) =>
       path.startsWith('/api/mail/trash/count') ? { count: 4 } : defaultResponse(path));
