@@ -14,9 +14,8 @@ function saveChoice(value: 'accepted' | 'essential'): void {
 function showNotice(): void {
   if (document.querySelector('.cookie-notice')) return;
 
-  const notice = document.createElement('aside');
+  const notice = document.createElement('section');
   notice.className = 'cookie-notice';
-  notice.setAttribute('role', 'dialog');
   notice.setAttribute('aria-labelledby', 'cookie-notice-title');
   notice.setAttribute('aria-describedby', 'cookie-notice-description');
 

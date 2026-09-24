@@ -13,7 +13,8 @@ it('loads analytics only after consent and remembers acceptance across visits', 
   window.addEventListener('dispatch:analytics-accepted', accepted, { once: true });
   initCookieNotice();
   const notice = document.querySelector<HTMLElement>('.cookie-notice')!;
-  expect(notice.getAttribute('role')).toBe('dialog');
+  expect(notice.tagName).toBe('SECTION');
+  expect(notice.hasAttribute('role')).toBe(false);
   expect(notice.textContent).toContain('Google Analytics measures visits to public pages');
   expect(notice.querySelector('a')?.getAttribute('href')).toBe('/privacy-policy#cookies');
   notice.querySelector<HTMLButtonElement>('.cookie-notice-accept')!.click();

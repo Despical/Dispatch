@@ -132,6 +132,16 @@ class PageControllerSecurityTest {
         mvc.perform(get("/sitemap.xml"))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("https://mail.despical.dev/features")));
+        mvc.perform(get("/llms.txt"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("# Dispatch")))
+            .andExpect(content().string(containsString("[Features](https://mail.despical.dev/features)")));
+        mvc.perform(get("/.well-known/ard.json"))
+            .andExpect(status().isOk())
+            .andExpect(content().json("{\"specVersion\":\"1.0\",\"entries\":[]}"));
+        mvc.perform(get("/.well-known/ai-catalog.json"))
+            .andExpect(status().isOk())
+            .andExpect(content().json("{\"specVersion\":\"1.0\",\"entries\":[]}"));
         mvc.perform(get("/login"))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("name=\"robots\" content=\"noindex, nofollow\"")))

@@ -1,0 +1,14 @@
+# Dispatch
+
+> Dispatch is a private webmail workspace for connected email accounts.
+
+## Public pages
+
+- [Home](https://mail.despical.dev/): Overview of the workspace.
+- [Features](https://mail.despical.dev/features): Mailbox and message features.
+- [Security](https://mail.despical.dev/security): Account and message protections.
+- [Contact](https://mail.despical.dev/contact): Support and feedback.
+- [Privacy policy](https://mail.despical.dev/privacy-policy): Data and cookie practices.
+- [Terms of service](https://mail.despical.dev/terms-of-service): Service terms.
+
+Mailboxes, account settings, and administration require sign-in. Dispatch does not publish an agent tool or public mail API.

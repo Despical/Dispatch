@@ -99,6 +99,9 @@ public class SecurityConfig {
                             "/analytics.js",
                             "/robots.txt",
                             "/sitemap.xml",
+                            "/llms.txt",
+                            "/.well-known/ard.json",
+                            "/.well-known/ai-catalog.json",
                             "/oauth/google/callback",
                             "/error")
                         .permitAll()

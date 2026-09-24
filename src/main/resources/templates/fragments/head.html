@@ -23,6 +23,7 @@
     <meta th:if="${canonicalPath != null}" name="twitter:description" th:content="${description}">
     <meta th:if="${canonicalPath != null}" name="twitter:image" content="https://mail.despical.dev/images/dispatch-social.png">
     <link th:if="${canonicalPath != null}" rel="canonical" th:href="${'https://mail.despical.dev' + canonicalPath}">
+    <link th:if="${canonicalPath != null}" rel="ard" href="https://mail.despical.dev/.well-known/ard.json">
     <meta th:if="${canonicalPath == null}" name="robots" content="noindex, nofollow">
     <link rel="icon" th:href="@{/favicon.svg(v=2)}" type="image/svg+xml">
     <link rel="stylesheet" th:href="@{/assets/app.css}">
