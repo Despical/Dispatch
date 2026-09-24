@@ -122,9 +122,11 @@ function readableAccounts() { return state.accounts.length > 0 || !!mailSharing?
 
 let extraUndo: (() => Promise<void>) | null = null;
 let trashTotal = 0;
+let trashCountAccountId: number | null = null;
 
 function renderTrashCount(): void {
-  $('[data-trash-count]').textContent = state.trash && trashTotal > 0 ? String(trashTotal) : '';
+  $('[data-trash-count]').textContent = state.accountId !== null && trashCountAccountId === state.accountId && trashTotal > 0
+    ? String(trashTotal) : '';
 }
 
 function errorMessage(error: unknown): string {
@@ -428,13 +430,28 @@ function refreshDraftView(): void {
 
 async function refreshTrashCount(): Promise<void> {
   const request = ++trashCountRequest;
-  try {
-      const result = await api<{ count: number }>(`/api/mail/trash/count${state.accountId ? `?accountId=${state.accountId}` : ''}`);
-    if (request !== trashCountRequest) return;
-    trashTotal = result.count;
+  const accountId = state.accountId;
+  if (accountId === null) {
+    trashTotal = 0;
+    trashCountAccountId = null;
     renderTrashCount();
     updatePanePrimaryAction();
-  } catch { /* Keep the last known count when offline. */ }
+    return;
+  }
+  try {
+    const result = await api<{ count: number }>(`/api/mail/trash/count?accountId=${accountId}`);
+    if (request !== trashCountRequest || state.accountId !== accountId) return;
+    trashTotal = result.count;
+    trashCountAccountId = accountId;
+    renderTrashCount();
+    updatePanePrimaryAction();
+  } catch {
+    if (request !== trashCountRequest || state.accountId !== accountId) return;
+    trashTotal = 0;
+    trashCountAccountId = null;
+    renderTrashCount();
+    updatePanePrimaryAction();
+  }
 }
 
 async function trashDraft(id: string, item: HTMLElement, trashed: boolean): Promise<void> {
@@ -511,11 +528,11 @@ function updatePanePrimaryAction(): void {
   $('[data-add-contact]').classList.toggle('hidden',state.extra !== 'contacts');
   const empty = document.querySelector<HTMLButtonElement>('[data-empty-trash]');
   empty?.classList.toggle('hidden', !state.trash);
-  if (empty) empty.disabled = state.trash && trashTotal === 0;
+  if (empty) empty.disabled = state.trash && (trashCountAccountId !== state.accountId || trashTotal === 0);
 }
 
 async function emptyTrash(): Promise<void> {
-  if (!state.trash || trashTotal === 0) return;
+  if (!state.trash || trashCountAccountId !== state.accountId || trashTotal === 0) return;
   if (!await confirmAction('Empty Trash?', 'Permanently delete every message and draft in Trash? This cannot be undone.', 'Empty Trash')) return;
   const previousTotal = trashTotal;
   const button = $<HTMLButtonElement>('[data-empty-trash]'); button.disabled = true;
@@ -526,7 +543,7 @@ async function emptyTrash(): Promise<void> {
     showMessageToast(`${result.deleted} ${result.deleted === 1 ? 'message' : 'messages'} permanently deleted`, 'M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 10v6m4-6v6', 'success', false, 4500);
     if (result.deleted < previousTotal) void reconcileStaleMailbox(new ApiError(409, 'Gmail changed'), state.accountId);
   } catch (error) { alert(errorMessage(error)); }
-  finally { button.disabled = trashTotal === 0; }
+  finally { button.disabled = trashCountAccountId !== state.accountId || trashTotal === 0; }
 }
 
 export function ensureMessageLoading(list: HTMLElement): HTMLElement {

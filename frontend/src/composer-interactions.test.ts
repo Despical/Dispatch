@@ -81,14 +81,18 @@ describe('mail interactions with the real mail template', () => {
     expect(pane.classList.contains('open')).toBe(false);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
   });
-  it('shows a nonzero Trash count only while Trash is selected', async () => {
+  it('shows the selected account Trash count and hides it in the unified inbox', async () => {
     mockedApi.mockImplementation(async (path: string) =>
-      path.startsWith('/api/mail/trash/count') ? { count: 4 } : defaultResponse(path));
+      path.startsWith('/api/mail/trash/count') ? { count: path.includes('accountId=2') ? 2 : 4 } : defaultResponse(path));
     element<HTMLButtonElement>('[data-unified]').click(); await settle();
     expect(location.pathname).toBe('/mail');
     expect(element('[data-trash-count]').textContent).toBe('');
-    element<HTMLButtonElement>('[data-trash]').click(); await settle();
+    element<HTMLElement>('[data-account="1"]').click(); await settle();
     expect(element('[data-trash-count]').textContent).toBe('4');
+    element<HTMLElement>('[data-account="2"]').click(); await settle();
+    expect(element('[data-trash-count]').textContent).toBe('2');
+    element<HTMLButtonElement>('[data-trash]').click(); await settle();
+    expect(element('[data-trash-count]').textContent).toBe('2');
     element<HTMLButtonElement>('[data-unified]').click(); await settle();
     expect(element('[data-trash-count]').textContent).toBe('');
   });
