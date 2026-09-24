@@ -67,6 +67,17 @@ async function openReplyAll() {
 }
 
 describe('mail interactions with the real mail template', () => {
+  it('shows a nonzero Trash count only while Trash is selected', async () => {
+    mockedApi.mockImplementation(async (path: string) =>
+      path.startsWith('/api/mail/trash/count') ? { count: 4 } : defaultResponse(path));
+    element<HTMLButtonElement>('[data-unified]').click(); await settle();
+    expect(location.pathname).toBe('/mail');
+    expect(element('[data-trash-count]').textContent).toBe('');
+    element<HTMLButtonElement>('[data-trash]').click(); await settle();
+    expect(element('[data-trash-count]').textContent).toBe('4');
+    element<HTMLButtonElement>('[data-unified]').click(); await settle();
+    expect(element('[data-trash-count]').textContent).toBe('');
+  });
   it('opens the first account trash and normalizes a direct trash URL', async () => {
     history.replaceState(null, '', '/mail/trash');
     window.dispatchEvent(new PopStateEvent('popstate')); await settle();
