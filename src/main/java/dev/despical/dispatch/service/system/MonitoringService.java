@@ -28,6 +28,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -35,6 +36,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -77,6 +80,33 @@ public class MonitoringService {
 
     private static String bytes(long value) {
         return String.format(java.util.Locale.ROOT, "%.1f GB", Math.max(0, value) / 1073741824.0);
+    }
+
+    static long usedMemoryBytes(long total, long free, String memInfo) {
+        long available = Math.max(0, free);
+        if (memInfo != null) {
+            long hostTotal = memInfoBytes(memInfo, "MemTotal");
+            long hostAvailable = memInfoBytes(memInfo, "MemAvailable");
+            if (hostTotal > 0 && hostAvailable >= 0 &&
+                Math.abs(hostTotal - total) <= Math.max(total / 100, 1048576)) {
+                available = hostAvailable;
+            }
+        }
+        return Math.max(0, total - Math.min(total, available));
+    }
+
+    private static long memInfoBytes(String memInfo, String name) {
+        for (String line : memInfo.split("\\R")) {
+            if (!line.startsWith(name + ":")) continue;
+            String[] parts = line.substring(name.length() + 1).trim().split("\\s+");
+            if (parts.length < 2 || !"kB".equals(parts[1])) return -1;
+            try {
+                return Math.multiplyExact(Long.parseLong(parts[0]), 1024);
+            } catch (ArithmeticException exception) {
+                return -1;
+            }
+        }
+        return -1;
     }
 
     private static int percent(long used, long total) {
@@ -220,9 +250,15 @@ public class MonitoringService {
                 (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
             long total = os.getTotalMemorySize();
             long free = os.getFreeMemorySize();
-            int memory = percent(total - free, total);
+            long used;
+            try {
+                used = usedMemoryBytes(total, free, Files.readString(Path.of("/proc/meminfo")));
+            } catch (IOException | SecurityException exception) {
+                used = usedMemoryBytes(total, free, null);
+            }
+            int memory = percent(used, total);
             resources.add(new Resource("Memory", memory + "% used",
-                bytes(total - free) + " of " + bytes(total), memory,
+                bytes(used) + " of " + bytes(total), memory,
                 state(memory)));
             double cpu = os.getCpuLoad();
             int cpuPercent = cpu < 0 ? 0 : (int) Math.round(cpu * 100);
