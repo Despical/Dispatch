@@ -103,6 +103,15 @@ html[data-theme="light"] .public-info-note { background: #f2eafa; border-color: 
 html[data-theme="light"] .public-info-note-plain { background: transparent; }
 html[data-theme="light"] .status-component > span, html[data-theme="light"] .status-component p { color: #655c70; }
 html[data-theme="light"] .status-component strong { color: #33293f; }
+html[data-theme="light"] .admin-status-banner { background: #e9f7ef; border-color: #aed9bf; }
+html[data-theme="light"] .admin-status-banner[data-status-overall-state="ISSUE"] { background: #fff2e8; border-color: #e5bb91; }
+html[data-theme="light"] .admin-status-banner[data-status-overall-state="UNKNOWN"] { background: #f4f1f8; border-color: var(--line); }
+html[data-theme="light"] .admin-status-resource-top { color: #62596e; }
+html[data-theme="light"] .admin-status-resource-state, html[data-theme="light"] .admin-status-service-result { color: #287553; }
+html[data-theme="light"] .admin-status-resource[data-state="WARN"] .admin-status-resource-state { color: #9a6518; }
+html[data-theme="light"] .admin-status-resource[data-state="DOWN"] .admin-status-resource-state,
+html[data-theme="light"] .admin-status-service[data-state="DOWN"] .admin-status-service-result { color: #af3848; }
+html[data-theme="light"] .admin-status-alert > span { color: #9a6518; }
 @media (max-width: 640px) {
     html[data-theme="light"] .public-mobile-menu summary, html[data-theme="light"] .public-mobile-menu nav { background: #fff; border-color: #dcd4e8; color: #2e253a; }
     html[data-theme="light"] .public-mobile-menu nav a { color: #4b4059; }
