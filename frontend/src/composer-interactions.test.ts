@@ -67,6 +67,51 @@ async function openReplyAll() {
 }
 
 describe('mail interactions with the real mail template', () => {
+  it('reports actual image results, ignores stale frames, and retries failed loads', async () => {
+    element<HTMLButtonElement>('[data-message-id="101"] .message-open').click();
+    await settle();
+    const button = element<HTMLButtonElement>('[data-load-images]');
+    const label = element('[data-load-images-label]');
+    const frame = element<HTMLIFrameElement>('[data-message-frame]');
+    button.click();
+    expect(frame.src).toContain('externalImages=true');
+    expect(label.textContent).toBe('Loading remote images…');
+    expect(button.disabled).toBe(true);
+    const view = new URL(frame.src).searchParams.get('imageView');
+    const report = (source: MessageEventSource | null, imageView: string | null, loaded: number, failed: number) =>
+      window.dispatchEvent(new MessageEvent('message', { source, data: {
+        type: 'dispatch-image-status', view: imageView, total: 2, loaded, failed
+      } }));
+    report(window, view, 2, 0);
+    report(frame.contentWindow, 'old', 2, 0);
+    expect(label.textContent).toBe('Loading remote images…');
+    report(frame.contentWindow, view, 1, 1);
+    expect(label.textContent).toBe('Some remote images could not be loaded');
+    expect(button.disabled).toBe(false);
+    button.click();
+    const retryView = new URL(frame.src).searchParams.get('imageView');
+    expect(retryView).not.toBe(view);
+    report(frame.contentWindow, view, 2, 0);
+    expect(label.textContent).toBe('Loading remote images…');
+    report(frame.contentWindow, retryView, 2, 0);
+    expect(label.textContent).toBe('Remote images loaded');
+    expect(button.disabled).toBe(true);
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(label.textContent).toBe('Remote images loaded');
+  });
+
+  it('allows retry when the image frame never reports a result', async () => {
+    element<HTMLButtonElement>('[data-message-id="101"] .message-open').click();
+    await settle();
+    const button = element<HTMLButtonElement>('[data-load-images]');
+    button.click();
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(element('[data-load-images-label]').textContent).toBe('Remote images could not be loaded');
+    expect(button.disabled).toBe(false);
+    button.click();
+    expect(element('[data-load-images-label]').textContent).toBe('Loading remote images…');
+  });
+
   it('closes the mobile folder drawer from its backdrop and after navigation', async () => {
     const toggle = element<HTMLButtonElement>('[data-open-nav]');
     const pane = element<HTMLElement>('[data-account-pane]');

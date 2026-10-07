@@ -8,6 +8,7 @@ import { initQuickResponses } from './quick-responses';
 import { initMailExtras, type ExtraView } from './mail-extras';
 import { readMailLocation, mailLocationUrl } from './mail-navigation';
 import { currentLanguage, translate } from './preferences';
+import { remoteImageResult, type RemoteImageControl } from './remote-images';
 
 type Account = { id: number; displayName: string; email: string; authProvider: 'GOOGLE' | 'PASSWORD'; syncStatus: string | null; syncError: string | null; lastSyncAt: string | null; active: boolean };
 type Folder = { id: number; accountId: number; name: string; unreadCount: number; specialUse: string | null };
@@ -61,6 +62,8 @@ let incomingDraftId: string | null = null;
 const mutatingDraftIds = new Set<string>();
 let incomingMessage: { id: number; className: 'pinning-in' | 'restoring' } | null = null;
 let detailExternalImages = false;
+let detailImageView = 0;
+let detailImageTimer = 0;
 let detailOriginalFormatting = false;
 let pendingExternalUrl: string | null = null;
 const selectedMessageIds = new Set<number>();
@@ -1023,6 +1026,8 @@ function clearDetail(): void {
   $('[data-extra-detail]').classList.add('hidden');
   state.detail = null;
   detailExternalImages = false;
+  window.clearTimeout(detailImageTimer);
+  detailImageView++;
   detailOriginalFormatting = false;
   closeDetailMenu();
   hideExternalLinkConfirm();
@@ -1086,17 +1091,30 @@ function refreshDetailFrame(): void {
   const detail = state.detail; if (!detail) return;
   const frame = $<HTMLIFrameElement>('[data-message-frame]');
   frame.classList.toggle('original-render', detailOriginalFormatting);
+  const imageView = String(++detailImageView);
+  window.clearTimeout(detailImageTimer);
   frame.src = messageContentUrl(detail.id, detailExternalImages, detailOriginalFormatting,
-    document.documentElement.dataset.theme === 'light');
+    document.documentElement.dataset.theme === 'light') + `&imageView=${imageView}`;
   const renderButton = $<HTMLButtonElement>('[data-render-mode]');
   renderButton.classList.toggle('active', detailOriginalFormatting);
   renderButton.setAttribute('aria-pressed', String(detailOriginalFormatting));
   renderButton.title = detailOriginalFormatting ? 'Show simplified text view' : 'Show original email design';
   renderButton.setAttribute('aria-label', renderButton.title);
-  const imageButton = $<HTMLButtonElement>('[data-load-images]');
-  imageButton.disabled = detailExternalImages;
-  imageButton.classList.toggle('active', detailExternalImages);
-  $('[data-load-images-label]').textContent = detailExternalImages ? 'Remote images loaded' : 'Load remote images';
+  setRemoteImageControl({ label: detailExternalImages ? 'Loading remote images…' : 'Load remote images', retry: !detailExternalImages });
+  if (detailExternalImages) {
+    detailImageTimer = window.setTimeout(() => {
+      if (String(detailImageView) === imageView && state.detail && detailExternalImages) {
+        setRemoteImageControl({ label: 'Remote images could not be loaded', retry: true });
+      }
+    }, 30_000);
+  }
+}
+
+function setRemoteImageControl(status: RemoteImageControl): void {
+  const button = $<HTMLButtonElement>('[data-load-images]');
+  button.disabled = !status.retry;
+  button.classList.toggle('active', detailExternalImages);
+  $('[data-load-images-label]').textContent = translate(status.label);
 }
 
 function closeDetailMenu(): void {
@@ -1559,7 +1577,7 @@ export async function initMail(): Promise<void> {
     catch (error) { alert(errorMessage(error)); }
   });
   $('[data-load-images]').addEventListener('click', () => {
-    if (!state.detail || detailExternalImages) return;
+    if (!state.detail || $<HTMLButtonElement>('[data-load-images]').disabled) return;
     detailExternalImages = true; closeDetailMenu(); refreshDetailFrame();
   });
   $('[data-render-mode]').addEventListener('click', () => {
@@ -1583,6 +1601,13 @@ export async function initMail(): Promise<void> {
   window.addEventListener('message', event => {
     const frame = $<HTMLIFrameElement>('[data-message-frame]');
     if (event.source !== frame.contentWindow || !event.data || typeof event.data !== 'object') return;
+    if (state.detail && detailExternalImages) {
+      const status = remoteImageResult(event.data, String(detailImageView));
+      if (status) {
+        setRemoteImageControl(status);
+        if (status.label !== 'Loading remote images…') window.clearTimeout(detailImageTimer);
+      }
+    }
     const data = event.data as { type?: string; url?: string; rect?: { left?: number; top?: number; bottom?: number } };
     if (data.type === 'dispatch-frame-click') { closeDetailMenu(); hideExternalLinkConfirm(); closeAccountMenu(); composeAccountPicker?.close(); mailExtras.closePicker(); }
     if (data.type === 'dispatch-link-confirm' && typeof data.url === 'string') {

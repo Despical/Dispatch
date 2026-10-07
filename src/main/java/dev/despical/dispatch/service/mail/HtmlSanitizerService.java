@@ -76,6 +76,7 @@ public class HtmlSanitizerService {
                 if (source.startsWith("http://") || source.startsWith("https://") ||
                     source.startsWith("//")) {
                     image.attr("data-remote-src", image.attr("src"));
+                    image.attr("data-remote-alt", image.attr("alt"));
                     image.removeAttr("src");
                     image.attr("alt", "Remote image blocked");
                 }

@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -215,10 +216,17 @@ public class MessageController {
             var document = Jsoup.parseBodyFragment(content);
             document.select("img[data-remote-src]")
                 .forEach(image -> {
-                    String source = image.attr("data-remote-src");
+                    String source = image.attr("data-remote-src").trim();
+                    if (source.startsWith("//")) source = "https:" + source;
+                    String protocol = source.toLowerCase(Locale.ROOT);
 
-                    if (source.startsWith("https://") || source.startsWith("http://")) {
+                    if (protocol.startsWith("https://") || protocol.startsWith("http://")) {
                         image.attr("src", source);
+                        if (image.hasAttr("data-remote-alt")) {
+                            image.attr("alt", image.attr("data-remote-alt"));
+                        } else if ("Remote image blocked".equals(image.attr("alt"))) {
+                            image.removeAttr("alt");
+                        }
                     }
                 });
             content = original
@@ -281,6 +289,7 @@ public class MessageController {
                 + "</style></head><body>"
                 + content
                 + linkGuardScript
+                + (externalImages ? remoteImageStatusScript(scriptNonce) : "")
                 + "</body></html>";
 
         String imagePolicy = externalImages ? "img-src data: https: http:;" : "img-src data:;";
@@ -296,5 +305,34 @@ public class MessageController {
                     + " base-uri 'none'; form-action 'none'; frame-ancestors 'self'")
             .header("X-Content-Type-Options", "nosniff")
             .body(page.getBytes(StandardCharsets.UTF_8));
+    }
+
+    static String remoteImageStatusScript(String nonce) {
+        return "<script nonce=\"" + nonce + "\">" + """
+            (() => {
+                const images = Array.from(document.images).filter(image => {
+                    const source = (image.getAttribute('src') || '').toLowerCase();
+                    return ['https://', 'http://', '//'].some(prefix => source.startsWith(prefix));
+                });
+                const view = new URL(location.href).searchParams.get('imageView');
+                const report = () => {
+                    let loaded = 0, failed = 0;
+                    for (const image of images) {
+                        if (!image.complete) continue;
+                        if (image.naturalWidth > 0) loaded++;
+                        else {
+                            failed++;
+                            if (!image.alt) image.alt = 'Image could not be loaded';
+                        }
+                    }
+                    parent.postMessage({type: 'dispatch-image-status', view,
+                        total: images.length, loaded, failed}, '*');
+                };
+                document.addEventListener('load', report, true);
+                document.addEventListener('error', report, true);
+                window.addEventListener('load', report);
+                report();
+            })();
+            """ + "</script>";
     }
 }

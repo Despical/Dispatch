@@ -69,4 +69,11 @@ class HtmlSanitizerServiceTest {
 
         assertThat(styled).contains("Hello").doesNotContain("javascript:", "style=");
     }
+
+    @Test
+    void savesOriginalAltForTheConsentRenderingWithoutLoadingTheImage() {
+        String blocked = sanitizer.sanitize("<img src='https://example.test/logo.png' alt='Our logo'>", false);
+        assertThat(blocked).contains("data-remote-alt=\"Our logo\"", "alt=\"Remote image blocked\"")
+            .doesNotContain("<img src=");
+    }
 }
