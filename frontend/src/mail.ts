@@ -119,9 +119,12 @@ async function restoreMailLocation():Promise<void>{
 }
 function sharedPermissions(id: number | null) { return mailSharing?.permission(id); }
 function setMailboxTitle(title: string, accountEmail?: string): void {
-  $('[data-mailbox-title]').textContent = title;
+  const heading = $<HTMLElement>('[data-mailbox-title]');
+  heading.textContent = title;
+  heading.title = title;
   const account = $('[data-mailbox-account]');
   account.textContent = accountEmail ?? '';
+  account.setAttribute('title', accountEmail ?? '');
   account.classList.toggle('hidden', !accountEmail);
   account.closest('.pane-toolbar')?.classList.toggle('has-account-title', Boolean(accountEmail));
   renderDocumentTitle();
@@ -1519,7 +1522,8 @@ export async function initMail(): Promise<void> {
   document.querySelectorAll<HTMLDialogElement>('dialog.modal:not([data-canned-editor-modal]):not([data-contact-editor]):not([data-sharing-editor]):not([data-sharing-accounts-modal])').forEach(dialog => {
     dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close('cancel'); });
   });
-  $('[data-unified]').addEventListener('click', () => selectMailbox(null, null, 'Unified inbox'));
+  document.querySelectorAll('[data-unified], [data-unified-shortcut]').forEach(button =>
+    button.addEventListener('click', () => selectMailbox(null, null, 'Unified inbox')));
   $('[data-trash]').addEventListener('click', selectTrash);
   $('[data-drafts]').addEventListener('click', selectDrafts);
   $('[data-empty-trash]').addEventListener('click', () => void emptyTrash());
