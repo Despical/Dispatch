@@ -1,40 +1,46 @@
-# Dispatch
+<p align="center">
+  <img src="src/main/resources/static/favicon.svg" width="128" height="128" alt="Dispatch icon">
+</p>
 
-[![](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Java 25](https://img.shields.io/badge/Java-25-007396.svg)](https://www.java.com/)
-![Gradle](https://img.shields.io/badge/Gradle-9.7.1-079ec0?logo=gradle&logoColor=white)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F.svg)](https://spring.io/projects/spring-boot)
+<h1 align="center">Dispatch</h1>
 
-Dispatch is a private, self-hosted webmail workspace for connecting existing mail accounts. It combines multiple inboxes with drafts, contacts, mailbox sharing, and an isolated reading pane. Administrators manage access, and the interface stays focused on mail.
+<p align="center">Private, self-hosted webmail for connecting existing mail accounts in one workspace.</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-25-007396.svg" alt="Java 25">
+  <img src="https://img.shields.io/badge/Gradle-9.8.2-079ec0?logo=gradle&amp;logoColor=white" alt="Gradle 9.8.2">
+  <img src="https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F.svg" alt="Spring Boot 4.1.1">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="GPL-3.0-or-later license"></a>
+</p>
+
+<p align="center"><a href="#features">Features</a> · <a href="#requirements">Requirements</a> · <a href="#building-from-source">Build &amp; Run</a> · <a href="#docker-deployment">Docker</a> · <a href="#mail-accounts">Mail Accounts</a> · <a href="SECURITY.md">Security</a></p>
 
 ---
+
+Dispatch combines multiple inboxes with drafts, contacts, mailbox sharing, and an isolated reading pane. Administrators manage access, and the interface stays focused on mail.
 
 ## Features
 
-* **Unified mail:** Read connected accounts together or open an individual mailbox.
-* **Gmail and IMAP:** Connect Gmail through Google OAuth or use supported IMAP/SMTP accounts.
-* **Drafts and sending:** Save drafts and send through a durable outbox.
-* **Safer reading:** Render mail in an isolated pane and scan attachments with ClamAV.
-* **Self-hostable:** Run the application with your own PostgreSQL database and mail providers.
-
----
+- **Unified mail:** Read connected accounts together or open an individual mailbox.
+- **Gmail and IMAP:** Connect Gmail through Google OAuth or use supported IMAP/SMTP accounts.
+- **Drafts and sending:** Save drafts and send through a durable outbox.
+- **Safer reading:** Render mail in an isolated pane and scan attachments with ClamAV.
+- **Self-hostable:** Run the application with your own PostgreSQL database and mail providers.
 
 ## Requirements
 
-* Java 25
-* Node.js 22.17 or newer and pnpm 10
-* PostgreSQL 17 or compatible
-* ClamAV for attachment scanning
+- Java 25
+- Node.js 22.17 or newer and pnpm 10
+- PostgreSQL 17 or compatible
+- ClamAV for attachment scanning
 
----
+## Building from source
 
-## Building From Source
-
-### 1. Clone the Repository
+### 1. Clone the repository
 
 Clone this repository and change into the `Dispatch` directory.
 
-### 2. Environment Configuration
+### 2. Environment configuration
 
 Create a local environment file and set database credentials and separate random values for `JWT_SIGNING_KEY_BASE64`, `DATA_ENCRYPTION_KEY_BASE64`, `BOOTSTRAP_TOKEN`, and `PROMETHEUS_SCRAPE_TOKEN`.
 
@@ -50,7 +56,7 @@ Linux / macOS:
 cp .env.example .env
 ```
 
-### 3. Build & Test
+### 3. Build and test
 
 Windows:
 
@@ -66,7 +72,7 @@ Linux / macOS:
 ./gradlew build
 ```
 
-### 4. Run Locally
+### 4. Run locally
 
 Windows:
 
@@ -96,13 +102,9 @@ only when another local port is needed. For the shared Despical VPS, use
 `docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d --build`
 and follow the [existing Nginx integration guide](docker/nginx/README.md).
 
----
-
-## Mail Accounts
+## Mail accounts
 
 Dispatch connects to existing mail providers; it does not run a mail server. For Gmail OAuth, configure `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REDIRECT_URI`. Other accounts use verified TLS connections. Attachments remain unavailable until a ClamAV scan succeeds.
-
----
 
 ## Security
 
@@ -110,20 +112,16 @@ We prioritize user privacy and application integrity. Please do not open public 
 
 Read our [SECURITY.md](SECURITY.md) for responsible disclosure reporting.
 
----
-
 ## Contributing
 
 We welcome Pull Requests from the community. To help us maintain clean project history and formatting, please follow these guidelines:
 
-* **No tabs:** Use spaces exclusively for indentation.
-* **Style consistency:** Respect the established code architecture and style templates.
-* **Version control cleanliness:** Do not increment project version numbers in example configurations within your PR.
-* **Minimal diffs:** Disable automated reformat-on-save settings that affect untouched files.
+- **No tabs:** Use spaces exclusively for indentation.
+- **Style consistency:** Respect the established code architecture and style templates.
+- **Version control cleanliness:** Do not increment project version numbers in example configurations within your PR.
+- **Minimal diffs:** Disable automated reformat-on-save settings that affect untouched files.
 
 Learn more via our formal [Contribution Guidelines](CONTRIBUTING.md).
-
----
 
 ## License
 
