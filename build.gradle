@@ -40,7 +40,7 @@ configurations {
 ext {
     mapstructVersion = '1.6.3'
     jjwtVersion = '0.13.0'
-    greenMailVersion = '2.1.14'
+    greenMailVersion = '2.1.15'
     testcontainersVersion = '1.21.4'
 }
 
