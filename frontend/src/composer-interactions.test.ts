@@ -484,15 +484,16 @@ describe('mail interactions with the real mail template', () => {
     expect(element('[data-attachment-preview-content]').textContent).toContain('too large');
   });
 
-  it('does not offer retry or download when scanning is unavailable', async () => {
+  it('offers download only, without preview or retry, when scanning is unavailable', async () => {
     mockedApi.mockImplementation(async (path: string) => {
       if (path === '/api/mail/messages/101') return { ...messages[0], attachments: [{ id: 8, filename: 'example.txt', scanStatus: 'UNAVAILABLE', sizeBytes: 50 }] };
       return defaultResponse(path);
     });
     element<HTMLButtonElement>('[data-message-id="101"] .message-open').click(); await settle();
-    expect(document.querySelector('[aria-label="Download example.txt"]')).toBeNull();
+    expect(document.querySelector('[aria-label="Download example.txt"]')).not.toBeNull();
+    expect(document.querySelector('[aria-label="Preview example.txt"]')).toBeNull();
     expect(document.querySelector('[aria-label="Retry scan example.txt"]')).toBeNull();
-    expect(element('[data-attachment-list]').textContent).toContain('Scanning is not available right now.');
+    expect(element('[data-attachment-list]').textContent).toContain('scanner offline');
   });
 
   let cleanupListeners = () => {};
