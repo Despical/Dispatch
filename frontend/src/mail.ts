@@ -1174,9 +1174,12 @@ function renderAttachments(items: Attachment[]): void {
       button.addEventListener('click', () => { button.disabled = true; void handler().catch(error => alert(errorMessage(error))).finally(() => { button.disabled = false; }); });
       actions.append(button); return button;
     };
-    if (item.scanStatus === 'CLEAN') {
-      action('Preview', 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0', () => previewAttachment(item));
+    if (item.scanStatus === 'CLEAN' || item.scanStatus === 'UNAVAILABLE') {
+      if (item.scanStatus === 'CLEAN')
+        action('Preview', 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0', () => previewAttachment(item));
       action('Download', 'M12 3v12m0 0 4-4m-4 4-4-4M5 19h14', async () => {
+        if (item.scanStatus === 'UNAVAILABLE'
+          && !window.confirm(`${item.filename} could not be scanned because the virus scanner is offline. Download it anyway?`)) return;
         const blob = await api<Blob>(`/api/mail/attachments/${item.id}`, {}, true, true);
         const url = URL.createObjectURL(blob), link = document.createElement('a');
         link.href = url; link.download = item.filename; document.body.append(link); link.click(); link.remove();
@@ -1204,7 +1207,7 @@ async function previewAttachment(item: Attachment): Promise<void> {
 }
 
 function scanLabel(item: Attachment): string {
-  return ({ SCANNING: 'Scanning', CLEAN: 'No threat detected', SUSPICIOUS: 'Suspicious', UNAVAILABLE: 'Scanning is not available right now.', QUARANTINED: 'Quarantined' } as Record<string, string>)[item.scanStatus] ?? item.scanStatus;
+  return ({ SCANNING: 'Scanning', CLEAN: 'No threat detected', SUSPICIOUS: 'Suspicious', UNAVAILABLE: 'Not scanned (scanner offline) · download only', QUARANTINED: 'Quarantined' } as Record<string, string>)[item.scanStatus] ?? item.scanStatus;
 }
 
 function formatBytes(bytes: number): string { return bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`; }
