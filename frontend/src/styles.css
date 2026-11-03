@@ -365,8 +365,8 @@ textarea { resize: vertical; }
 .external-link-actions { grid-column: 2; display: flex; justify-content: flex-end; gap: .45rem; margin-top: .15rem; }
 .external-link-actions button { min-height: 2rem; padding: .36rem .65rem; border: 1px solid var(--line); border-radius: .4rem; background: transparent; color: #c7cfdb; font-size: .74rem; font-weight: var(--weight-medium); cursor: pointer; }
 .external-link-actions button:hover { background: var(--panel-3); color: #fff; }
-.external-link-actions [data-link-open] { border-color: #704fd0; background: #6841ca; color: #fff; }
-.external-link-actions [data-link-open]:hover { background: #7750d8; }
+.external-link-actions [data-link-open], .external-link-actions [data-download-confirm-ok] { border-color: #704fd0; background: #6841ca; color: #fff; }
+.external-link-actions [data-link-open]:hover, .external-link-actions [data-download-confirm-ok]:hover { background: #7750d8; }
 .attachments { flex: 0 0 auto; padding: 1rem 1.65rem; border-top: 1px solid var(--line-soft); max-height: 13rem; overflow: auto; }
 .attachments h3 { margin: 0 0 .75rem; color: #dce2ec; font-size: .8rem; font-weight: var(--weight-semibold); }
 .attachments [data-attachment-list] { display: flex; flex-wrap: wrap; gap: .6rem; }

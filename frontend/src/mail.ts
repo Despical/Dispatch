@@ -1176,18 +1176,17 @@ function renderAttachments(items: Attachment[]): void {
     copy.append(node('strong', '', item.filename), node('small', `scan-${item.scanStatus.toLowerCase()}`, `${formatBytes(item.sizeBytes)} · ${scanLabel(item)}`)); row.append(fileIcon, copy);
     row.title = item.filename;
     const actions = node('div', 'attachment-actions');
-    const action = (label: string, icon: string, handler: () => Promise<void>) => {
+    const action = (label: string, icon: string, handler: (button: HTMLButtonElement) => Promise<void>) => {
       const button = node('button', 'attachment-download'); button.type = 'button'; button.title = label; button.setAttribute('aria-label', `${label} ${item.filename}`);
       button.append(messageIcon(icon));
-      button.addEventListener('click', () => { button.disabled = true; void handler().catch(error => alert(errorMessage(error))).finally(() => { button.disabled = false; }); });
+      button.addEventListener('click', () => { button.disabled = true; void handler(button).catch(error => alert(errorMessage(error))).finally(() => { button.disabled = false; }); });
       actions.append(button); return button;
     };
     if (item.scanStatus === 'CLEAN' || item.scanStatus === 'UNAVAILABLE') {
       if (item.scanStatus === 'CLEAN')
         action('Preview', 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0', () => previewAttachment(item));
-      action('Download', 'M12 3v12m0 0 4-4m-4 4-4-4M5 19h14', async () => {
-        if (item.scanStatus === 'UNAVAILABLE'
-          && !window.confirm(`${item.filename} could not be scanned because the virus scanner is offline. Download it anyway?`)) return;
+      action('Download', 'M12 3v12m0 0 4-4m-4 4-4-4M5 19h14', async button => {
+        if (item.scanStatus === 'UNAVAILABLE' && !await confirmUnscannedDownload(item, button)) return;
         const blob = await api<Blob>(`/api/mail/attachments/${item.id}`, {}, true, true);
         const url = URL.createObjectURL(blob), link = document.createElement('a');
         link.href = url; link.download = item.filename; document.body.append(link); link.click(); link.remove();
@@ -1197,6 +1196,35 @@ function renderAttachments(items: Attachment[]): void {
     row.append(actions);
     list.append(row);
   }
+}
+
+function confirmUnscannedDownload(item: Attachment, anchor: HTMLElement): Promise<boolean> {
+  const popover = $<HTMLElement>('[data-download-confirm]');
+  $('[data-download-file]').textContent = item.filename;
+  popover.classList.remove('hidden');
+  const box = anchor.getBoundingClientRect();
+  const left = Math.max(12, Math.min(box.right - popover.offsetWidth, window.innerWidth - popover.offsetWidth - 12));
+  let top = box.bottom + 8;
+  if (top + popover.offsetHeight > window.innerHeight - 12) top = Math.max(12, box.top - popover.offsetHeight - 8);
+  popover.style.left = `${left}px`; popover.style.top = `${top}px`;
+  return new Promise(resolve => {
+    const finish = (value: boolean) => {
+      popover.classList.add('hidden');
+      document.removeEventListener('pointerdown', onPointer, true);
+      document.removeEventListener('keydown', onKey, true);
+      $('[data-download-cancel]').removeEventListener('click', onCancel);
+      $('[data-download-confirm-ok]').removeEventListener('click', onOk);
+      resolve(value);
+    };
+    const onCancel = () => finish(false), onOk = () => finish(true);
+    const onPointer = (event: Event) => { if (!popover.contains(event.target as Node)) finish(false); };
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') finish(false); };
+    $('[data-download-cancel]').addEventListener('click', onCancel);
+    $('[data-download-confirm-ok]').addEventListener('click', onOk);
+    document.addEventListener('pointerdown', onPointer, true);
+    document.addEventListener('keydown', onKey, true);
+    $<HTMLButtonElement>('[data-download-confirm-ok]').focus();
+  });
 }
 
 async function previewAttachment(item: Attachment): Promise<void> {

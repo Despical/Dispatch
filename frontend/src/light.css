@@ -119,8 +119,8 @@ html[data-theme="light"] .account-sort-floating { color: #3c2b52 !important; bac
 html[data-theme="light"] .external-link-confirm { background: #fff; border-color: #d8cee2; color: #352b40; box-shadow: 0 18px 55px #30203e38; }
 html[data-theme="light"] .external-link-copy span { color: #645a70; }
 html[data-theme="light"] .external-link-copy code { background: #f7f4fa; border-color: #ded6e8; color: #4d415b; }
-html[data-theme="light"] .external-link-actions button:not([data-link-open]) { color: #4d425a; }
-html[data-theme="light"] .external-link-actions button:not([data-link-open]):hover { background: #f1eafa; color: #382a4a; }
+html[data-theme="light"] .external-link-actions button:not([data-link-open]):not([data-download-confirm-ok]) { color: #4d425a; }
+html[data-theme="light"] .external-link-actions button:not([data-link-open]):not([data-download-confirm-ok]):hover { background: #f1eafa; color: #382a4a; }
 html[data-theme="light"] .security-session, html[data-theme="light"] .security-event { background: #fff; color: #554b61; }
 html[data-theme="light"] .security-session strong, html[data-theme="light"] .security-event strong { color: #30273d; }
 html[data-theme="light"] .security-session.current-device { background: #f5f0fb; border-color: #c9b6e9; }

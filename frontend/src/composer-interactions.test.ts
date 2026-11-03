@@ -496,6 +496,23 @@ describe('mail interactions with the real mail template', () => {
     expect(element('[data-attachment-list]').textContent).toContain('scanner offline');
   });
 
+  it('asks in an in-app popover before downloading an unscanned attachment', async () => {
+    mockedApi.mockImplementation(async (path: string) => {
+      if (path === '/api/mail/messages/101') return { ...messages[0], attachments: [{ id: 8, filename: 'example.txt', scanStatus: 'UNAVAILABLE', sizeBytes: 50 }] };
+      return defaultResponse(path);
+    });
+    const nativeConfirm = vi.spyOn(window, 'confirm');
+    element<HTMLButtonElement>('[data-message-id="101"] .message-open').click(); await settle();
+    element<HTMLButtonElement>('[aria-label="Download example.txt"]').click(); await settle();
+    expect(element('[data-download-confirm]').classList.contains('hidden')).toBe(false);
+    expect(element('[data-download-file]').textContent).toBe('example.txt');
+    element<HTMLButtonElement>('[data-download-cancel]').click(); await settle();
+    expect(element('[data-download-confirm]').classList.contains('hidden')).toBe(true);
+    expect(mockedApi.mock.calls.some(call => call[0] === '/api/mail/attachments/8')).toBe(false);
+    expect(nativeConfirm).not.toHaveBeenCalled();
+    nativeConfirm.mockRestore();
+  });
+
   let cleanupListeners = () => {};
   const dialogMethods = new Map<string, PropertyDescriptor | undefined>();
 

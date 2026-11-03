@@ -283,6 +283,21 @@
                     <button data-link-open type="button">Continue</button>
                 </div>
             </aside>
+            <aside aria-describedby="download-confirm-file" aria-labelledby="download-confirm-title"
+                   class="external-link-confirm hidden"
+                   data-download-confirm role="alertdialog">
+                <span aria-hidden="true" class="external-link-icon"><svg viewBox="0 0 24 24"><path
+                    d="M12 3 4.5 6v5.5c0 4.5 3.1 7.8 7.5 9.5 4.4-1.7 7.5-5 7.5-9.5V6zM12 8v4.5M12 16h.01"/></svg></span>
+                <div class="external-link-copy">
+                    <strong id="download-confirm-title">Download without a virus scan?</strong>
+                    <span>The virus scanner is offline, so this file was not checked.</span>
+                    <code data-download-file id="download-confirm-file"></code>
+                </div>
+                <div class="external-link-actions">
+                    <button data-download-cancel type="button">Cancel</button>
+                    <button data-download-confirm-ok type="button">Download anyway</button>
+                </div>
+            </aside>
             <section class="attachments hidden" data-attachments><h3 data-attachment-heading>Attachments</h3>
                 <div data-attachment-list></div>
                 <p class="attachment-warning">Scanning reduces risk but cannot guarantee a file is safe.</p></section>
