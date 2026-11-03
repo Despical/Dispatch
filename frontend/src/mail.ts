@@ -144,6 +144,7 @@ function renderDocumentTitle(): void {
 }
 
 async function refreshInboxUnreadCount(): Promise<void> {
+  void refreshFolderCounts();
   const request = ++titleCountRequest;
   const accountId = state.accountId;
   const folderId = state.folderId;
@@ -346,6 +347,13 @@ async function loadAccounts(showLoading = true): Promise<void> {
     window.setTimeout(() => animatedIds.forEach(id => enteringAccountIds.delete(id)), 450);
     fillComposeAccounts(); updateAccountAvailability();
   } catch (error) { alert(errorMessage(error)); } finally { if (showLoading) loading.classList.add('hidden'); }
+}
+
+async function refreshFolderCounts(): Promise<void> {
+  await Promise.all(state.accounts.map(async account => {
+    try { state.folders.set(account.id, await api<Folder[]>(`/api/mail/folders?accountId=${account.id}`)); } catch { /* keep previous counts */ }
+  }));
+  renderAccounts();
 }
 
 function renderAccounts(): void {
