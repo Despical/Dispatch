@@ -63,18 +63,31 @@ class AttachmentControllerTest {
     }
 
     @Test
-    void allUntrustedStatusesBlockBothRoutes() {
+    void allUntrustedStatusesBlockPreviewAndThreatsBlockDownload() {
         for (var status : Attachment.ScanStatus.values()) {
             if (status == Attachment.ScanStatus.CLEAN) continue;
             Attachment attachment = new Attachment();
             attachment.setScanStatus(status);
             when(access.attachment(42L, 7L)).thenReturn(attachment);
-            assertThatThrownBy(() -> controller.download(7L, principal))
-                .isInstanceOf(ApiException.class);
             assertThatThrownBy(() -> controller.preview(7L, principal))
+                .isInstanceOf(ApiException.class);
+            if (status == Attachment.ScanStatus.UNAVAILABLE) continue;
+            assertThatThrownBy(() -> controller.download(7L, principal))
                 .isInstanceOf(ApiException.class);
         }
         verifyNoInteractions(service);
+    }
+
+    @Test
+    void unscannedAttachmentCanBeDownloadedWhenScannerIsOffline() throws Exception {
+        Path file = directory.resolve("report.pdf");
+        Files.writeString(file, "content");
+        Attachment attachment = new Attachment();
+        attachment.setScanStatus(Attachment.ScanStatus.UNAVAILABLE);
+        attachment.setFilename("report.pdf");
+        when(access.attachment(42L, 7L)).thenReturn(attachment);
+        when(service.resolveForDownload(attachment)).thenReturn(file);
+        assertThat(controller.download(7L, principal).getStatusCode().is2xxSuccessful()).isTrue();
     }
 
     @Test
