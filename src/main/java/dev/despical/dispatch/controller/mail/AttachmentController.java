@@ -54,7 +54,10 @@ public class AttachmentController {
         @AuthenticationPrincipal DispatchPrincipal principal
     ) {
         Attachment attachment = access.attachment(principal.adminId(), id);
-        if (attachment.getScanStatus() != Attachment.ScanStatus.CLEAN) {
+        // Download stays possible while the scanner is offline (UNAVAILABLE); the UI asks for confirmation first.
+        // Threats, suspicious files and in-progress scans remain locked.
+        if (attachment.getScanStatus() != Attachment.ScanStatus.CLEAN
+            && attachment.getScanStatus() != Attachment.ScanStatus.UNAVAILABLE) {
             throw new ApiException(HttpStatus.LOCKED, "This attachment is not available because it has not passed scanning.");
         }
 
