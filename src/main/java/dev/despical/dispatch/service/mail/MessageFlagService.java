@@ -51,7 +51,13 @@ public class MessageFlagService {
     @Transactional
     public void setRead(Long ownerId, Long id, boolean value) {
         MailMessage message = access.message(ownerId, id, MailAccessService.Action.ORGANIZE);
+        boolean changed = message.isReadFlag() != value;
         message.setReadFlag(value);
+        MailFolder folder = message.getFolder();
+        if (changed && folder != null) {
+            // The sidebar badge reads this counter, which is otherwise only refreshed on sync.
+            folder.setUnreadCount(Math.max(0, folder.getUnreadCount() + (value ? -1 : 1)));
+        }
         try {
             updateRemote(message, Flags.Flag.SEEN, value);
         } catch (ApiException ignored) {
