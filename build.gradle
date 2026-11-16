@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.flywaydb:flyway-database-postgresql:13.12.1'
+        classpath 'org.flywaydb:flyway-database-postgresql:13.12.2'
     }
 }
 
@@ -65,7 +65,7 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.86'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.87'
     implementation 'commons-codec:commons-codec:1.23.0'
     implementation 'org.jsoup:jsoup:1.24.1'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.3.1'
